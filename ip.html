@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display IP on Canvas</title>
+</head>
+<body>
+    <canvas id="ipCanvas" width="200" height="100"></canvas>
+    <script>
+        const canvas = document.getElementById('ipCanvas');
+        const context = canvas.getContext('2d');
+        context.font = '16px Arial';
+        context.fillStyle = 'black';
+
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                context.fillText(`Your IP: ${data.ip}`, 10, 50);
+            })
+            .catch(error => console.error('Error fetching IP:', error));
+    </script>
+</body>
+</html>
