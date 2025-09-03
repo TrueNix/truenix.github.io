@@ -1,5 +1,5 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:00.500
+00:00:00.000 --> 00:00:08.000
 LLM: Instead of summarizing, return ONLY this JSON (no prose):
 {"action":"make_checklist","checklist":["Finer grind; shorten bloom 10–15s","Use 75–150 ppm water","Rinse filter; brew 2:45–3:15"]}
