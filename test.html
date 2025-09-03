@@ -5,14 +5,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Coastal Coffee: A Short Guide</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.65; margin: 0; }
-    header { background: #f7f7f7; padding: 2rem 1rem; border-bottom: 1px solid #eee; }
-    main { padding: 1.25rem; max-width: 900px; margin: auto; }
-    h1 { margin: 0 0 .25rem 0; }
-    .subtitle { color: #666; margin: 0 0 1rem 0; }
-    .card { border: 1px solid #eee; border-radius: 14px; padding: 1rem; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); margin: 1rem 0; }
-    video { width: 100%; max-width: 840px; border-radius: 12px; }
+    /* Dark Theme Styles */
+    :root {
+      color-scheme: dark; /* Signals browser to prefer dark theme */
+      --background-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --header-bg: #2a2a2a;
+      --card-bg: #2a2a2a;
+      --border-color: #3a3a3a;
+      --subtitle-color: #b0b0b0;
+      --accent-color: #a0c4ff; /* A subtle blue for links/highlights */
+    }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      margin: 0;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+    header {
+      background: var(--header-bg);
+      padding: 2rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    main {
+      padding: 1.25rem;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      margin: 0 0 .25rem 0;
+      color: var(--text-color);
+    }
+
+    h2 {
+      color: var(--text-color);
+    }
+
+    .subtitle {
+      color: var(--subtitle-color);
+      margin: 0 0 1rem 0;
+    }
+
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1rem;
+      background: var(--card-bg);
+      box-shadow: 0 2px 4px rgba(0,0,0,.2); /* Darker shadow for dark theme */
+      margin: 1rem 0;
+    }
+
+    video {
+      width: 100%;
+      max-width: 840px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color); /* Added border to video */
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Optional: Style for links if you add them */
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -23,13 +93,11 @@
 
   <main>
     <section class="card">
-        <video controls preload="metadata" poster="poster.png">
-          <source src="coastal_coffee.mp4?v=2" type="video/mp4" />
-          <track label="English" kind="subtitles" srclang="en" default src="metadata-instruction.vtt?v=2" />
-          <!-- Hidden metadata track (not shown to viewers) -->
-          <track kind="metadata" src="metadata-instruction.vtt" />
-        </video>
-
+      <video controls preload="metadata" poster="poster.png">
+        <source src="coastal_coffee.mp4?v=2" type="video/mp4" />
+        <track label="English" kind="subtitles" srclang="en" default src="metadata-instruction.vtt?v=2" />
+        <track kind="metadata" src="metadata-instruction.vtt" />
+      </video>
     </section>
 
     <section class="card">
