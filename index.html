@@ -3,227 +3,408 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fancy File Manager (Standalone)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Fancy File Manager — Offline</title>
   <style>
-    html, body, #root { height: 100%; }
+    :root{--bg:#0b1220;--bg2:#111a2e;--panel:#121a2b;--muted:#9fb0d0;--text:#e6edf7;--accent:#6ea8fe;--accent2:#c084fc;--ok:#34d399;--warn:#f59e0b;--danger:#ef4444;}
+    *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:linear-gradient(145deg,var(--bg),var(--bg2));color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;}
+    h1{margin:0;font-size:24px;font-weight:700}
+    header{position:sticky;top:0;background:rgba(17,24,39,.6);backdrop-filter:blur(6px);border-bottom:1px solid rgba(99,102,241,.15);padding:14px 16px;z-index:10}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+    .btn{padding:8px 12px;border-radius:12px;border:1px solid #0000;background:#4f46e5;color:#fff;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+    .btn:hover{background:#4338ca}
+    .btn.alt{background:#0891b2}.btn.alt:hover{background:#0e7490}
+    .btn.green{background:#10b981}.btn.green:hover{background:#059669}
+    .btn.pink{background:#a21caf}.btn.pink:hover{background:#86198f}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .input{padding:8px 12px;border-radius:12px;border:1px solid #24304a;background:#111827;color:#dbeafe;min-width:280px}
+    .hint{color:var(--muted);font-size:12px}
+    main{display:grid;grid-template-columns:280px 1fr;gap:12px;padding:12px}
+    .panel{border:1px solid #23304a;border-radius:16px;overflow:hidden;background:rgba(17,24,39,.6)}
+    .panel .title{padding:8px 12px;border-bottom:1px solid #23304a;background:rgba(17,24,39,.6);font-size:14px;display:flex;justify-content:space-between}
+    .list{max-height:70vh;overflow:auto}
+    .item{padding:8px 12px;border-top:1px solid rgba(35,48,74,.35);cursor:pointer}
+    .item:first-child{border-top:0}
+    .item:hover{background:rgba(30,41,59,.5)}
+    .item.active{background:rgba(30,41,59,.7)}
+    .meta{font-size:11px;color:var(--muted)}
+    .sel{font-size:10px;color:#34d399;margin-left:20px}
+    pre{white-space:pre-wrap;font-size:13px;line-height:1.35}
+    .preview{padding:12px;max-height:70vh;overflow:auto}
+    .search-results{margin-top:12px}
+    .result{padding:10px 12px;border-top:1px solid rgba(35,48,74,.35)}
+    .result code{background:#0b1530;border-radius:6px;padding:0 4px}
+    footer{padding:12px;text-align:center;color:var(--muted);font-size:12px}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;padding:12px}
+    .modal{width:min(900px,95vw);background:#0f172a;border:1px solid #23304a;border-radius:16px;overflow:hidden}
+    .modal header{position:relative;background:#0f172a;border:0}
+    .modal .body{padding:12px}
+    .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    textarea{width:100%;height:160px;border-radius:12px;background:#0b1530;color:#cbd5e1;border:1px solid #23304a;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+    a.link{color:#93c5fd}
   </style>
 </head>
-<body class="bg-slate-900">
-  <div id="root"></div>
+<body>
+  <header>
+    <div style="display:flex;gap:10px;align-items:center">
+      <h1>Fancy File Manager</h1>
+      <span class="hint">Local • Private • Search • FTP helper</span>
+    </div>
+    <div class="row">
+      <button id="btnFolder" class="btn">Choose Folder</button>
+      <label for="filePicker" class="btn alt">Choose Files / Folder</label>
+      <input id="filePicker" type="file" multiple webkitdirectory style="display:none" />
+      <input id="filter" class="input" placeholder="Filter by name (Type /regex/ for regex)" />
+      <button id="btnSearch" class="btn green" disabled>Search in files</button>
+      <button id="btnFtp" class="btn pink" disabled>FTP / SFTP…</button>
+      <span id="err" class="hint"></span>
+    </div>
+  </header>
 
-  <!-- React (CDN) + Babel for JSX in-browser. For production, consider prebuilding. -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <main>
+    <aside class="panel">
+      <div class="title"><span>Files <span id="count"></span></span><span id="loading" class="hint"></span></div>
+      <div id="list" class="list"></div>
+      <div id="emptyHint" class="hint" style="padding:12px;display:none">Click <b>Choose Folder</b> or <b>Choose Files / Folder</b> to grant read access. Everything stays on your device.</div>
+    </aside>
 
-  <script type="text/babel">
-    const { useEffect, useMemo, useState } = React;
+    <section>
+      <div class="panel">
+        <div class="title"><span>Preview</span><span id="activePath" class="hint" style="max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span><button id="btnToggleSel" class="btn" style="margin-left:auto;display:none">Select</button></div>
+        <div class="preview" id="preview"></div>
+      </div>
 
-    function App() {
-      const [dirHandle, setDirHandle] = useState(null);
-      const [entries, setEntries] = useState([]);
-      const [loading, setLoading] = useState(false);
-      const [error, setError] = useState("");
-      const [activePath, setActivePath] = useState(null);
-      const [activePreview, setActivePreview] = useState({ type: "", text: "", bytes: null });
-      const [query, setQuery] = useState("");
-      const [searching, setSearching] = useState(false);
-      const [searchResults, setSearchResults] = useState([]);
-      const [selected, setSelected] = useState(new Set());
-      const [ftpOpen, setFtpOpen] = useState(false);
-      const [ftpCfg, setFtpCfg] = useState(() => {
-        const saved = localStorage.getItem("fancyfm.ftp");
-        return (saved && JSON.parse(saved)) || { scheme: "sftp", host: "example.com", port: 22, user: "username", pass: "", remoteDir: "/uploads" };
-      });
-
-      useEffect(() => { localStorage.setItem("fancyfm.ftp", JSON.stringify(ftpCfg)); }, [ftpCfg]);
-
-      const supportsFSAccess = !!window.showDirectoryPicker;
-
-      async function pickDirectory() {
-        try {
-          setError("");
-          if (!supportsFSAccess) { setError("This browser doesn't support directory access. Try Chrome or Edge."); return; }
-          const handle = await window.showDirectoryPicker({ id: "fancy-fm-root", mode: "read" });
-          setDirHandle(handle);
-          setLoading(true);
-          const list = [];
-          await walkDirectory(handle, "", list);
-          list.sort((a,b)=> a.path.localeCompare(b.path));
-          setEntries(list);
-          setLoading(false);
-          if (list.length) setActivePath(list[0].path);
-        } catch (e) {
-          if (e?.name !== "AbortError") setError(String(e));
-          setLoading(false);
-        }
-      }
-
-      async function walkDirectory(handle, base, out) {
-        for await (const [name, h] of handle.entries()) {
-          const path = base ? `${base}/${name}` : name;
-          if (h.kind === "file") {
-            try {
-              const file = await h.getFile();
-              out.push({ path, handle: h, kind: "file", size: file.size, lastModified: file.lastModified });
-            } catch (e) {
-              out.push({ path, handle: h, kind: "file", size: 0, lastModified: 0 });
-            }
-          } else if (h.kind === "directory") {
-            out.push({ path, handle: h, kind: "directory" });
-            await walkDirectory(h, path, out);
-          }
-        }
-      }
-
-      async function preview(path) {
-        setActivePath(path);
-        const entry = entries.find(e => e.path === path);
-        if (!entry || entry.kind !== "file") { setActivePreview({ type: "", text: "", bytes: null }); return; }
-        try {
-          const file = await getFileFromEntry(entry);
-          const type = sniffType(entry.path, file.type);
-          if (type === "text") {
-            const text = await file.text();
-            setActivePreview({ type: "text", text, bytes: null });
-          } else if (type === "image") {
-            const bytes = await file.arrayBuffer();
-            setActivePreview({ type: "image", text: "", bytes });
-          } else {
-            setActivePreview({ type: "binary", text: `Binary file (size ${file.size.toLocaleString()} bytes)`, bytes: null });
-          }
-        } catch (e) {
-          setActivePreview({ type: "", text: `Cannot open file: ${e}`, bytes: null });
-        }
-      }
-
-      function handleFileInput(ev){
-        const files = Array.from(ev.target.files || []);
-        if (!files.length) return;
-        loadFromFiles(files);
-        ev.target.value = "";
-      }
-
-      async function loadFromFiles(files){
-        try {
-          setError("");
-          setDirHandle(null);
-          setLoading(true);
-          const list = [];
-          for (const file of files){
-            const path = file.webkitRelativePath || file.name;
-            list.push({ path, handle: null, kind: "file", size: file.size, lastModified: file.lastModified, fileObj: file });
-          }
-          list.sort((a,b)=> a.path.localeCompare(b.path));
-          setEntries(list);
-          setLoading(false);
-          if (list.length) setActivePath(list[0].path);
-        } catch(e){
-          setError(String(e));
-          setLoading(false);
-        }
-      }
-
-      async function getFileFromEntry(e){
-        if (e?.fileObj) return e.fileObj;
-        if (e?.handle?.getFile) return await e.handle.getFile();
-        throw new Error("Entry has no readable file");
-      }
-
-      function sniffType(path, mime) {
-        const low = path.toLowerCase();
-        if (mime?.startsWith("image/") || /(png|jpe?g|gif|webp|svg)$/.test(low)) return "image";
-        if (/(txt|md|json|js|ts|tsx|jsx|py|go|rs|c|cpp|h|java|kt|sh|yml|yaml|toml|ini|env|csv|html|css)$/.test(low) || mime?.startsWith("text/")) return "text";
-        return "binary";
-      }
-
-      const displayed = useMemo(() => {
-        if (!query) return entries;
-        const q = query.toLowerCase();
-        return entries.filter(e => e.path.toLowerCase().includes(q));
-      }, [entries, query]);
-
-      function toggleSelect(path) {
-        const next = new Set(selected);
-        if (next.has(path)) next.delete(path); else next.add(path);
-        setSelected(next);
-      }
-
-      async function runSearchInFiles(q) {
-        if (!q) return;
-        setSearching(true);
-        setSearchResults([]);
-        const results = [];
-        const needle = q;
-        const re = buildQueryRegex(needle);
-
-        for (const e of entries) {
-          if (e.kind !== "file") continue;
-          try {
-            const file = await getFileFromEntry(e);
-            const MAX = 5 * 1024 * 1024;
-            const blob = file.size > MAX ? file.slice(0, MAX) : file;
-            const text = await blob.text();
-            const lines = text.split(/\r?\n/);
-            const matches = [];
-            for (let i = 0; i < lines.length; i++) {
-              const line = lines[i];
-              if (re.test(line)) {
-                const idx = line.toLowerCase().indexOf(needle.toLowerCase());
-                const start = Math.max(0, idx - 30);
-                const end = Math.min(line.length, idx + needle.length + 30);
-                const snippet = line.slice(start, end);
-                matches.push({ line: i + 1, idx, snippet });
-              }
-            }
-            if (matches.length) results.push({ path: e.path, matches });
-          } catch {}
-        }
-        setSearchResults(results);
-        setSearching(false);
-      }
-
-      function buildQueryRegex(q) {
-        try {
-          if (q.startsWith("/") && q.endsWith("/")) { return new RegExp(q.slice(1, -1)); }
-        } catch {}
-        return new RegExp(q.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "i");
-      }
-
-      function humanSize(n) {
-        if (n == null) return "";
-        const units = ["B","KB","MB","GB","TB"]; let i=0; let x=n;
-        while (x >= 1024 && i < units.length-1) { x /= 1024; i++; }
-        return `${x.toFixed(x<10?2:x<100?1:0)} ${units[i]}`;
-      }
-
-      function copy(text) { navigator.clipboard.writeText(text); }
-
-      const ftpCommand = useMemo(() => {
-        const items = [...selected];
-        if (items.length === 0) return "# Select one or more files to generate upload commands";
-        const { scheme, host, port, user, pass, remoteDir } = ftpCfg;
-        const auth = pass ? `${user}:${pass}` : `${user}`;
-        if (scheme === "ftp") {
-          return `# FTP (unencrypted). Consider FTPS or SFTP instead.\n` +
-                 `# Upload selected files (passive mode)\n` +
-                 `curl --ftp-pasv -T {${items.join(",")}} ftp://${auth}@${host}:${port}${remoteDir}/\n`;
-        }
-        return `# SFTP (recommended) — uploads each file\n` +
-               items.map(p => `curl -T "${p}" sftp://${auth}@${host}:${port}${remoteDir}/`).join("\n");
-      }, [selected, ftpCfg]);
-
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100">
-          {/* header, main, and rest of UI unchanged from your version */}
-          {/* ... keep your existing JSX layout ... */}
+      <div id="resultsWrap" class="panel search-results" style="display:none">
+        <div class="title">
+          <span>Search results</span>
+          <span class="hint" id="resultsCount"></span>
+          <button id="btnClear" class="btn" style="margin-left:auto">Clear</button>
         </div>
-      );
-    }
+        <div id="results" style="max-height:40vh;overflow:auto"></div>
+      </div>
+    </section>
+  </main>
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+  <div id="ftpModal" class="modal-backdrop">
+    <div class="modal">
+      <header>
+        <div style="display:flex;gap:8px;align-items:center;padding:10px 12px">
+          <div style="font-weight:700">FTP / SFTP Upload Helper</div>
+          <button id="closeFtp" class="btn" style="margin-left:auto">✕</button>
+        </div>
+      </header>
+      <div class="body">
+        <div class="grid">
+          <div style="grid-column:span 2">
+            <label class="hint">Protocol</label>
+            <select id="proto" class="input" style="width:100%">
+              <option value="sftp">SFTP (recommended)</option>
+              <option value="ftp">FTP (insecure)</option>
+            </select>
+          </div>
+          <div>
+            <label class="hint">Host</label>
+            <input id="host" class="input" />
+          </div>
+          <div>
+            <label class="hint">Port</label>
+            <input id="port" class="input" type="number" value="22" />
+          </div>
+          <div>
+            <label class="hint">User</label>
+            <input id="user" class="input" />
+          </div>
+          <div>
+            <label class="hint">Password (optional)</label>
+            <input id="pass" class="input" type="password" />
+          </div>
+        </div>
+        <div class="grid" style="margin-top:10px">
+          <div style="grid-column:span 3">
+            <label class="hint">Remote directory</label>
+            <input id="remoteDir" class="input" value="/uploads" />
+          </div>
+          <div style="grid-column:span 3;display:flex;align-items:end" class="hint">
+            Selected files: <span id="selCount" style="margin-left:6px">0</span>
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <label class="hint">Generated command(s)</label>
+          <textarea id="cmds" readonly></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="copyCmds" class="btn">Copy</button>
+            <a class="btn" href="https://curl.se/docs/manpage.html" target="_blank" rel="noreferrer">curl manual ↗</a>
+          </div>
+          <p class="hint" style="margin-top:8px">Tip: open a terminal in the chosen folder and paste these commands. For SFTP you'll be prompted for a password if not provided.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Works best on Chrome/Edge over HTTPS or localhost (File System Access API). Double‑click a file to toggle selection.</footer>
+
+<script>
+(() => {
+  const el = id => document.getElementById(id);
+  const btnFolder = el('btnFolder');
+  const filePicker = el('filePicker');
+  const filter = el('filter');
+  const btnSearch = el('btnSearch');
+  const btnFtp = el('btnFtp');
+  const err = el('err');
+  const list = el('list');
+  const count = el('count');
+  const loading = el('loading');
+  const emptyHint = el('emptyHint');
+  const preview = el('preview');
+  const activePathEl = el('activePath');
+  const btnToggleSel = el('btnToggleSel');
+  const resultsWrap = el('resultsWrap');
+  const results = el('results');
+  const resultsCount = el('resultsCount');
+  const ftpModal = el('ftpModal');
+  const closeFtp = el('closeFtp');
+  const proto = el('proto');
+  const host = el('host');
+  const port = el('port');
+  const user = el('user');
+  const pass = el('pass');
+  const remoteDir = el('remoteDir');
+  const selCount = el('selCount');
+  const cmds = el('cmds');
+  const copyCmds = el('copyCmds');
+
+  let entries = []; // {path, kind, handle?, fileObj?, size, lastModified}
+  let activePath = null;
+  let selected = new Set();
+
+  const supportsFSAccess = !!window.showDirectoryPicker;
+
+  btnFolder.addEventListener('click', async () => {
+    if (!supportsFSAccess) { err.textContent = "This browser doesn't support directory access. Try Chrome or Edge."; return; }
+    try {
+      err.textContent = '';
+      const handle = await window.showDirectoryPicker({ id: 'fancy-fm-root', mode: 'read' });
+      loading.textContent = 'Loading…';
+      const listTmp = [];
+      await walkDirectory(handle, '', listTmp);
+      listTmp.sort((a,b)=> a.path.localeCompare(b.path));
+      entries = listTmp; activePath = entries[0]?.path || null; selected.clear();
+      renderList(); renderPreview(); updateButtons();
+      loading.textContent='';
+    } catch (e){ if (e?.name !== 'AbortError') err.textContent = String(e); loading.textContent=''; }
+  });
+
+  filePicker.addEventListener('change', (ev) => {
+    const files = Array.from(ev.target.files || []);
+    if (!files.length) return;
+    err.textContent = '';
+    loading.textContent = 'Loading…';
+    const listTmp = files.map(f => ({ path: f.webkitRelativePath || f.name, kind: 'file', fileObj: f, size: f.size, lastModified: f.lastModified }));
+    listTmp.sort((a,b)=> a.path.localeCompare(b.path));
+    entries = listTmp; activePath = entries[0]?.path || null; selected.clear();
+    renderList(); renderPreview(); updateButtons();
+    loading.textContent='';
+    ev.target.value = '';
+  });
+
+  filter.addEventListener('input', renderList);
+  btnSearch.addEventListener('click', () => runSearchInFiles(filter.value || prompt('Search text (supports /regex/):', filter.value) || ''));
+  btnFtp.addEventListener('click', openFtp);
+  closeFtp.addEventListener('click', () => ftpModal.style.display='none');
+  copyCmds.addEventListener('click', () => navigator.clipboard.writeText(cmds.value));
+
+  function updateButtons(){
+    btnSearch.disabled = entries.length === 0;
+    btnFtp.disabled = selected.size === 0;
+    emptyHint.style.display = entries.length? 'none':'block';
+  }
+
+  async function walkDirectory(handle, base, out){
+    for await (const [name, h] of handle.entries()){
+      const path = base ? `${base}/${name}` : name;
+      if (h.kind === 'file'){
+        try{ const f = await h.getFile(); out.push({ path, kind:'file', handle:h, size:f.size, lastModified:f.lastModified }); }
+        catch{ out.push({ path, kind:'file', handle:h, size:0, lastModified:0 }); }
+      } else if (h.kind === 'directory'){
+        out.push({ path, kind:'directory', handle:h });
+        await walkDirectory(h, path, out);
+      }
+    }
+  }
+
+  async function getFile(entry){
+    if (entry.fileObj) return entry.fileObj;
+    if (entry.handle?.getFile) return await entry.handle.getFile();
+    throw new Error('Entry has no readable file');
+  }
+
+  function renderList(){
+    const q = filter.value;
+    const regex = toNameFilter(q);
+    list.innerHTML = '';
+    let shown = 0;
+    for (const e of entries){
+      if (q && !regex.test(e.path.toLowerCase())) continue;
+      shown++;
+      const div = document.createElement('div');
+      div.className = 'item' + (activePath===e.path? ' active':'');
+      div.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><span style="opacity:.7">${e.kind==='directory'?'📁':'📄'}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${e.path}">${e.path}</span></div>` +
+        (e.kind==='file'? `<div class="meta" style="margin-left:22px">${humanSize(e.size)}${e.lastModified? ' • '+ new Date(e.lastModified).toLocaleString():''}</div>` : '');
+      if (selected.has(e.path)) {
+        const tag = document.createElement('div'); tag.className='sel'; tag.textContent='selected'; tag.style.marginLeft='22px'; div.appendChild(tag);
+      }
+      div.addEventListener('click', ()=>{ activePath = e.path; renderList(); renderPreview(); });
+      div.addEventListener('dblclick', ()=>{ toggleSelect(e.path); });
+      list.appendChild(div);
+    }
+    count.textContent = shown? `(${shown})` : '';
+    updateButtons();
+  }
+
+  function toggleSelect(path){
+    if (selected.has(path)) selected.delete(path); else selected.add(path);
+    renderList(); renderPreview(); updateButtons();
+  }
+
+  async function renderPreview(){
+    activePathEl.textContent = activePath || '';
+    btnToggleSel.style.display = activePath? 'inline-block':'none';
+    btnToggleSel.textContent = selected.has(activePath)? 'Unselect':'Select';
+    btnToggleSel.onclick = () => toggleSelect(activePath);
+
+    if (!activePath){ preview.innerHTML = '<div class="hint">Pick a file to preview.</div>'; return; }
+    const e = entries.find(x=> x.path===activePath);
+    if (!e || e.kind!=='file'){ preview.innerHTML = '<div class="hint">(No preview)</div>'; return; }
+    try{
+      const f = await getFile(e);
+      const type = sniffType(e.path, f.type);
+      if (type==='text'){
+        const text = await f.text();
+        preview.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
+      } else if (type==='image'){
+        const bytes = await f.arrayBuffer();
+        const blob = new Blob([bytes]);
+        const url = URL.createObjectURL(blob);
+        preview.innerHTML = `<img src="${url}" style="max-width:100%">`;
+      } else {
+        preview.innerHTML = `<div class="meta">Binary file (size ${humanSize(f.size)})</div>`;
+      }
+    } catch(e){ preview.innerHTML = `<div class="meta">Cannot open file: ${escapeHtml(String(e))}</div>`; }
+  }
+
+  function sniffType(path, mime){
+    const low = path.toLowerCase();
+    if ((mime||'').startsWith('image/') || /(png|jpe?g|gif|webp|svg)$/.test(low)) return 'image';
+    if (/(txt|md|json|js|ts|tsx|jsx|py|go|rs|c|cpp|h|java|kt|sh|yml|yaml|toml|ini|env|csv|html|css)$/.test(low) || (mime||'').startsWith('text/')) return 'text';
+    return 'binary';
+  }
+
+  function toNameFilter(q){
+    if (!q) return /./;
+    const s = q.toLowerCase();
+    if (s.startsWith('/') && s.endsWith('/')){
+      try{ return new RegExp(s.slice(1,-1)); }catch{ return /./; }
+    }
+    const esc = s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    return new RegExp(esc);
+  }
+
+  async function runSearchInFiles(q){
+    if (!q) return;
+    resultsWrap.style.display='block';
+    results.innerHTML=''; resultsCount.textContent='';
+    const re = buildQueryRegex(q);
+    let foundFiles = 0;
+    for (const e of entries){
+      if (e.kind!=='file') continue;
+      try{
+        const f = await getFile(e);
+        const MAX = 5*1024*1024; // 5MB
+        const blob = f.size>MAX? f.slice(0,MAX): f;
+        const text = await blob.text();
+        const lines = text.split(/\r?\n/);
+        const matches = [];
+        for (let i=0;i<lines.length;i++){
+          const line = lines[i];
+          if (re.test(line)){
+            const idx = line.toLowerCase().indexOf(q.toLowerCase());
+            const start = Math.max(0, idx-30);
+            const end = Math.min(line.length, idx + q.length + 30);
+            const snippet = line.slice(start,end);
+            matches.push({line:i+1, snippet});
+          }
+        }
+        if (matches.length){
+          foundFiles++;
+          const div = document.createElement('div');
+          div.className='result';
+          div.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><button class="link" data-open="${e.path}">${e.path}</button><button class="btn" style="margin-left:8px" data-select="${e.path}">Select</button></div>` +
+            '<ul class="meta" style="margin:6px 0 0 0;list-style:none;padding:0"></ul>';
+          const ul = div.querySelector('ul');
+          matches.slice(0,5).forEach(m=>{
+            const li = document.createElement('li');
+            li.innerHTML = `line ${m.line}: <code>…${escapeHtml(m.snippet)}…</code>`;
+            ul.appendChild(li);
+          });
+          if (matches.length>5){
+            const li = document.createElement('li'); li.className='meta'; li.textContent = `and ${matches.length-5} more…`; ul.appendChild(li);
+          }
+          div.addEventListener('click',(ev)=>{
+            const open = ev.target.getAttribute('data-open');
+            const sel = ev.target.getAttribute('data-select');
+            if (open){ activePath=open; renderList(); renderPreview(); }
+            if (sel){ toggleSelect(sel); }
+          });
+          results.appendChild(div);
+        }
+      }catch{}
+    }
+    resultsCount.textContent = `${foundFiles} files`;
+  }
+
+  function buildQueryRegex(q){
+    try{ if (q.startsWith('/') && q.endsWith('/')) return new RegExp(q.slice(1,-1)); }catch{}
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    return new RegExp(esc,'i');
+  }
+
+  function openFtp(){
+    selCount.textContent = selected.size;
+    const saved = JSON.parse(localStorage.getItem('fancyfm.ftp')||'{}');
+    if (saved && Object.keys(saved).length){
+      proto.value = saved.scheme || 'sftp'; host.value = saved.host||''; port.value = saved.port|| (proto.value==='ftp'?21:22);
+      user.value = saved.user||''; pass.value = saved.pass||''; remoteDir.value = saved.remoteDir||'/uploads';
+    }
+    updateCmds();
+    ftpModal.style.display='flex';
+  }
+
+  function updateCmds(){
+    const items = Array.from(selected);
+    const scheme = proto.value; const hostv = host.value; const portv = Number(port.value|| (scheme==='ftp'?21:22));
+    const userv = user.value; const passv = pass.value; const dirv = remoteDir.value || '/';
+    const auth = passv? `${userv}:${passv}` : `${userv}`;
+    if (items.length===0){ cmds.value = '# Select one or more files to generate upload commands'; return; }
+    if (scheme==='ftp'){
+      cmds.value = `# FTP (unencrypted). Consider FTPS or SFTP instead.\n`+
+                   `# Upload selected files (passive mode)\n`+
+                   `curl --ftp-pasv -T {${items.join(',')}} ftp://${auth}@${hostv}:${portv}${dirv}/`;
+      return;
+    }
+    cmds.value = `# SFTP (recommended) — uploads each file\n`+
+                 items.map(p=>`curl -T "${p}" sftp://${auth}@${hostv}:${portv}${dirv}/`).join("\n");
+    localStorage.setItem('fancyfm.ftp', JSON.stringify({scheme:scheme, host:hostv, port:portv, user:userv, pass:passv, remoteDir:dirv}));
+  }
+
+  document.addEventListener('input', (e)=>{
+    if ([proto,host,port,user,pass,remoteDir].includes(e.target)) updateCmds();
+  });
+
+  el('btnClear').addEventListener('click', ()=>{ resultsWrap.style.display='none'; results.innerHTML=''; resultsCount.textContent=''; });
+
+  function humanSize(n){ if (n==null) return ''; const u=['B','KB','MB','GB','TB']; let i=0,x=n; while(x>=1024&&i<u.length-1){x/=1024;i++;} return `${x.toFixed(x<10?2:x<100?1:0)} ${u[i]}`; }
+  function escapeHtml(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+})();
+</script>
 </body>
 </html>
