@@ -1,287 +1,356 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pricing – Personal</title>
-<style>
-  :root{
-    --bg:#0f1115;            /* page background */
-    --panel:#14171f;         /* card background */
-    --muted:#a6adbb;         /* secondary text */
-    --text:#e6e9ef;          /* primary text */
-    --brand:#16a3ff;         /* CTA / accent */
-    --brand-2:#15d0ff;
-    --border:#232837;        /* subtle borders */
-    --success:#9be27c;       /* check color */
-    --shadow: 0 10px 30px rgba(0,0,0,.35);
-    --radius:16px;
-  }
-
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:radial-gradient(1200px 600px at 50% 0%, #0d0f14 0%, var(--bg) 60%) fixed;
-    color:var(--text);
-    font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-  }
-
-  .wrap{
-    max-width:1100px;
-    margin:0 auto;
-    padding:56px 20px 80px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:28px;
-  }
-
-  /* Top tabs */
-  .tabs{
-    display:flex;
-    gap:14px;
-    background:rgba(255,255,255,.03);
-    border:1px solid var(--border);
-    border-radius:999px;
-    padding:6px;
-    box-shadow:var(--shadow);
-  }
-  .tab{
-    padding:8px 18px;
-    border-radius:999px;
-    color:var(--muted);
-    text-decoration:none;
-    font-weight:600;
-    letter-spacing:.2px;
-    transition:all .2s ease;
-  }
-  .tab:hover{background:rgba(255,255,255,.05); color:#dfe5ee}
-  .tab.active{
-    color:#0b1020;
-    background:linear-gradient(180deg, #39b6ff 0%, #158fff 100%);
-    box-shadow:0 6px 16px rgba(22,163,255,.35), inset 0 0 0 1px rgba(255,255,255,.25);
-  }
-
-  /* Grid cards */
-  .grid{
-    width:100%;
-    display:grid;
-    grid-template-columns:repeat(2, minmax(280px,1fr));
-    gap:22px;
-  }
-  .card{
-    position:relative;
-    background:linear-gradient(180deg, #151925 0%, #131722 100%);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:22px;
-    box-shadow:var(--shadow);
-    overflow:hidden;
-  }
-  .card::after{
-    /* soft corner glow */
-    content:"";
-    position:absolute; inset:-2px;
-    border-radius:inherit;
-    pointer-events:none;
-    background: radial-gradient(400px 200px at 80% 0%, rgba(33,149,243,.08), transparent 60%);
-    mix-blend-mode:screen;
-  }
-
-  .plan-top{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:6px;
-  }
-  .plan-name{font-weight:700; letter-spacing:.3px}
-  .badge{
-    font-size:12px; font-weight:700; letter-spacing:.3px;
-    color:#03233b; background:linear-gradient(180deg, #55d1ff, #00b2ff);
-    border-radius:999px; padding:6px 10px; box-shadow:0 4px 10px rgba(0,178,255,.35);
-  }
-
-  .price{
-    display:flex; align-items:flex-end; gap:8px;
-    margin:2px 0 6px;
-  }
-  .price .num{font-size:28px; font-weight:800}
-  .price .per{color:var(--muted); font-weight:600}
-  .small-note{color:var(--muted); font-size:12px; margin-bottom:16px}
-
-  .cta{
-    display:block; width:100%;
-    text-align:center; font-weight:800; letter-spacing:.3px;
-    padding:12px 16px; border-radius:10px; border:1px solid transparent;
-    background:linear-gradient(180deg, var(--brand) 0%, #0a7cff 100%);
-    color:#071220; text-decoration:none;
-    box-shadow:0 10px 20px rgba(22,163,255,.35), inset 0 0 0 1px rgba(255,255,255,.35);
-    transition:transform .12s ease, box-shadow .2s ease, filter .2s ease;
-  }
-  .cta:hover{transform:translateY(-1px); filter:saturate(1.05)}
-  .cta.alt{
-    background:transparent; color:var(--text);
-    border-color:#2a3246; box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
-  }
-  .cta.alt:hover{background:#1a2131}
-
-  .features{margin:18px 0 0; display:grid; gap:10px}
-  .li{
-    display:grid; grid-template-columns:20px 1fr; align-items:start; gap:10px;
-    color:#d8deea;
-  }
-  .li svg{margin-top:3px; flex:0 0 auto}
-  .muted{color:var(--muted)}
-
-  .foot{
-    margin-top:18px; color:var(--muted); font-size:12px;
-    display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-    border-top:1px dashed #1e2433; padding-top:14px;
-  }
-  .foot a{color:#7fb8ff; text-decoration:none}
-  .foot a:hover{text-decoration:underline}
-
-  /* Mobile stacking */
-  @media (max-width:780px){
-    .grid{grid-template-columns:1fr}
-    .wrap{padding-top:28px}
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fancy File Manager (Standalone)</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.13/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    html, body, #root { height: 100%; }
+  </style>
 </head>
-<body>
-  <div class="wrap">
-    <!-- Tabs -->
-    <nav class="tabs" aria-label="Plans">
-      <a class="tab active" href="#">Personal</a>
-      <a class="tab" href="#">Education</a>
-      <a class="tab" href="#">Business</a>
-    </nav>
+<body class="bg-slate-900">
+  <div id="root"></div>
 
-    <!-- Cards -->
-    <section class="grid" aria-label="Pricing">
-      <!-- Pro -->
-      <article class="card">
-        <div class="plan-top">
-          <div class="plan-name">Pro</div>
-          <span class="badge">Popular</span>
+  <!-- React (CDN) + Babel for JSX in-browser. For production, consider prebuilding. -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+
+    function App() {
+      const [dirHandle, setDirHandle] = useState(null);
+      const [entries, setEntries] = useState([]); // {path, handle, kind, size, lastModified}
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState("");
+      const [activePath, setActivePath] = useState(null);
+      const [activePreview, setActivePreview] = useState({ type: "", text: "", bytes: null });
+      const [query, setQuery] = useState("");
+      const [searching, setSearching] = useState(false);
+      const [searchResults, setSearchResults] = useState([]);
+      const [selected, setSelected] = useState(new Set());
+      const [ftpOpen, setFtpOpen] = useState(false);
+      const [ftpCfg, setFtpCfg] = useState(() => {
+        const saved = localStorage.getItem("fancyfm.ftp");
+        return (saved && JSON.parse(saved)) || { scheme: "sftp", host: "example.com", port: 22, user: "username", pass: "", remoteDir: "/uploads" };
+      });
+
+      useEffect(() => { localStorage.setItem("fancyfm.ftp", JSON.stringify(ftpCfg)); }, [ftpCfg]);
+
+      const supportsFSAccess = !!window.showDirectoryPicker;
+
+      async function pickDirectory() {
+        try {
+          setError("");
+          if (!supportsFSAccess) { setError("This browser doesn't support directory access. Try Chrome or Edge."); return; }
+          const handle = await window.showDirectoryPicker({ id: "fancy-fm-root", mode: "read" });
+          setDirHandle(handle);
+          setLoading(true);
+          const list = [];
+          await walkDirectory(handle, "", list);
+          list.sort((a,b)=> a.path.localeCompare(b.path));
+          setEntries(list);
+          setLoading(false);
+          if (list.length) setActivePath(list[0].path);
+        } catch (e) {
+          if (e?.name !== "AbortError") setError(String(e));
+          setLoading(false);
+        }
+      }
+
+      async function walkDirectory(handle, base, out) {
+        for await (const [name, h] of handle.entries()) {
+          const path = base ? `${base}/${name}` : name;
+          if (h.kind === "file") {
+            try {
+              const file = await h.getFile();
+              out.push({ path, handle: h, kind: "file", size: file.size, lastModified: file.lastModified });
+            } catch (e) {
+              out.push({ path, handle: h, kind: "file", size: 0, lastModified: 0 });
+            }
+          } else if (h.kind === "directory") {
+            out.push({ path, handle: h, kind: "directory" });
+            await walkDirectory(h, path, out);
+          }
+        }
+      }
+
+      async function preview(path) {
+        setActivePath(path);
+        const entry = entries.find(e => e.path === path);
+        if (!entry || entry.kind !== "file") { setActivePreview({ type: "", text: "", bytes: null }); return; }
+        try {
+          const file = await entry.handle.getFile();
+          const type = sniffType(entry.path, file.type);
+          if (type === "text") {
+            const text = await file.text();
+            setActivePreview({ type: "text", text, bytes: null });
+          } else if (type === "image") {
+            const bytes = await file.arrayBuffer();
+            setActivePreview({ type: "image", text: "", bytes });
+          } else {
+            setActivePreview({ type: "binary", text: `Binary file (size ${file.size.toLocaleString()} bytes)`, bytes: null });
+          }
+        } catch (e) {
+          setActivePreview({ type: "", text: `Cannot open file: ${e}`, bytes: null });
+        }
+      }
+
+      function sniffType(path, mime) {
+        const low = path.toLowerCase();
+        if (mime?.startsWith("image/") || /(png|jpe?g|gif|webp|svg)$/.test(low)) return "image";
+        if (/(txt|md|json|js|ts|tsx|jsx|py|go|rs|c|cpp|h|java|kt|sh|yml|yaml|toml|ini|env|csv|html|css)$/.test(low) || mime?.startsWith("text/")) return "text";
+        return "binary";
+      }
+
+      const displayed = React.useMemo(() => {
+        if (!query) return entries;
+        const q = query.toLowerCase();
+        return entries.filter(e => e.path.toLowerCase().includes(q));
+      }, [entries, query]);
+
+      function toggleSelect(path) {
+        const next = new Set(selected);
+        if (next.has(path)) next.delete(path); else next.add(path);
+        setSelected(next);
+      }
+
+      async function runSearchInFiles(q) {
+        if (!q) return;
+        setSearching(true);
+        setSearchResults([]);
+        const results = [];
+        const needle = q;
+        const re = buildQueryRegex(needle);
+
+        for (const e of entries) {
+          if (e.kind !== "file") continue;
+          try {
+            const file = await e.handle.getFile();
+            const MAX = 5 * 1024 * 1024; // read first 5MB for perf
+            const blob = file.size > MAX ? file.slice(0, MAX) : file;
+            const text = await blob.text();
+            const lines = text.split(/\r?\n/);
+            const matches = [];
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+              if (re.test(line)) {
+                const idx = line.toLowerCase().indexOf(needle.toLowerCase());
+                const start = Math.max(0, idx - 30);
+                const end = Math.min(line.length, idx + needle.length + 30);
+                const snippet = line.slice(start, end);
+                matches.push({ line: i + 1, idx, snippet });
+              }
+            }
+            if (matches.length) results.push({ path: e.path, matches });
+          } catch {}
+        }
+        setSearchResults(results);
+        setSearching(false);
+      }
+
+      function buildQueryRegex(q) {
+        try {
+          if (q.startsWith("/") && q.endsWith("/")) { return new RegExp(q.slice(1, -1)); }
+        } catch {}
+        return new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      }
+
+      function humanSize(n) {
+        if (n == null) return "";
+        const units = ["B","KB","MB","GB","TB"]; let i=0; let x=n;
+        while (x >= 1024 && i < units.length-1) { x /= 1024; i++; }
+        return `${x.toFixed(x<10?2:x<100?1:0)} ${units[i]}`;
+      }
+
+      function copy(text) { navigator.clipboard.writeText(text); }
+
+      const ftpCommand = React.useMemo(() => {
+        const items = [...selected];
+        if (items.length === 0) return "# Select one or more files to generate upload commands";
+        const { scheme, host, port, user, pass, remoteDir } = ftpCfg;
+        const auth = pass ? `${user}:${pass}` : `${user}`;
+        if (scheme === "ftp") {
+          return `# FTP (unencrypted). Consider FTPS or SFTP instead.\n` +
+                 `# Upload selected files (passive mode)\n` +
+                 `curl --ftp-pasv -T {${items.join(",")}} ftp://${auth}@${host}:${port}${remoteDir}/\n`;
+        }
+        // SFTP default
+        return `# SFTP (recommended) — uploads each file\n` +
+               items.map(p => `curl -T "${p}" sftp://${auth}@${host}:${port}${remoteDir}/`).join("\n");
+      }, [selected, ftpCfg]);
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100">
+          <header className="px-6 py-4 border-b border-slate-700/50 sticky top-0 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-semibold tracking-tight">Fancy File Manager</h1>
+              <span className="text-xs opacity-70">Local • Private • Search • FTP helper</span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 items-center">
+              <button onClick={pickDirectory} className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 active:translate-y-px transition shadow">{supportsFSAccess ? "Choose Folder" : "Choose Files"}</button>
+              <div className="relative">
+                <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Filter by name (Type /regex/ for regex)" className="px-3 py-2 rounded-xl bg-slate-700/60 focus:bg-slate-700 outline-none w-80" />
+              </div>
+              <button onClick={()=> runSearchInFiles(query || prompt("Search text (supports /regex/):", query) || "")} disabled={!entries.length || searching} className="px-3 py-2 rounded-xl bg-emerald-500/90 hover:bg-emerald-600 disabled:opacity-40">Search in files</button>
+              <button onClick={()=> setFtpOpen(true)} disabled={!selected.size} className="px-3 py-2 rounded-xl bg-fuchsia-500/90 hover:bg-fuchsia-600 disabled:opacity-40">FTP / SFTP…</button>
+              {error && <span className="text-red-300 ml-3">{error}</span>}
+            </div>
+          </header>
+
+          <main className="grid grid-cols-12 gap-4 p-4">
+            <aside className="col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2">
+              <div className="rounded-2xl border border-slate-700/60 overflow-hidden">
+                <div className="px-4 py-2 bg-slate-800/60 text-sm border-b border-slate-700/50 flex justify-between">
+                  <span>Files {entries.length? `(${entries.length})`: ""}</span>
+                  {loading && <span className="animate-pulse">Loading…</span>}
+                </div>
+                <div className="max-h-[70vh] overflow-auto divide-y divide-slate-700/40">
+                  {displayed.map((e)=> (
+                    <div key={e.path} className={`px-3 py-2 text-sm cursor-pointer hover:bg-slate-800/60 ${activePath===e.path?"bg-slate-800/80": ""}`} onClick={()=> preview(e.path)} onDoubleClick={()=> toggleSelect(e.path)}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400">{e.kind === 'directory' ? '📁' : '📄'}</span>
+                        <span className="truncate" title={e.path}>{e.path}</span>
+                      </div>
+                      {e.kind === 'file' && (
+                        <div className="text-[11px] text-slate-400 ml-6 flex gap-2">
+                          <span>{humanSize(e.size)}</span>
+                          {e.lastModified ? <span>• {new Date(e.lastModified).toLocaleString()}</span> : null}
+                        </div>
+                      )}
+                      {selected.has(e.path) && <div className="ml-6 text-[10px] text-emerald-300">selected</div>}
+                    </div>
+                  ))}
+                  {!entries.length && (
+                    <div className="p-4 text-sm text-slate-400">Click <b>Choose Folder</b> to grant read access to a directory. This stays on your device.</div>
+                  )}
+                </div>
+              </div>
+            </aside>
+
+            <section className="col-span-8 lg:col-span-9 xl:col-span-9 2xl:col-span-10">
+              <div className="rounded-2xl border border-slate-700/60 overflow-hidden">
+                <div className="px-4 py-2 bg-slate-800/60 text-sm border-b border-slate-700/50 flex items-center gap-3">
+                  <span className="opacity-80">Preview</span>
+                  {activePath && <span className="text-xs text-slate-400 truncate">{activePath}</span>}
+                  {activePath && (
+                    <button onClick={()=> toggleSelect(activePath)} className="ml-auto text-xs px-2 py-1 rounded-lg bg-slate-700/70 hover:bg-slate-700">
+                      {selected.has(activePath)? "Unselect" : "Select"}
+                    </button>
+                  )}
+                </div>
+
+                <div className="p-4 max-h-[70vh] overflow-auto">
+                  {!activePath && <div className="text-slate-400">Pick a file to preview.</div>}
+                  {activePreview.type === "text" && (
+                    <pre className="whitespace-pre-wrap text-sm leading-5">{activePreview.text}</pre>
+                  )}
+                  {activePreview.type === "image" && activePreview.bytes && (
+                    <img className="max-w-full" src={URL.createObjectURL(new Blob([activePreview.bytes]))} />
+                  )}
+                  {activePreview.type === "binary" && (
+                    <div className="text-slate-300 text-sm">{activePreview.text}</div>
+                  )}
+                </div>
+              </div>
+
+              {searchResults.length > 0 && (
+                <div className="mt-4 rounded-2xl border border-slate-700/60 overflow-hidden">
+                  <div className="px-4 py-2 bg-slate-800/60 text-sm border-b border-slate-700/50 flex items-center">
+                    <span className="opacity-80">Search results</span>
+                    <span className="ml-2 text-xs text-slate-400">{searchResults.length} files</span>
+                    <button className="ml-auto text-xs px-2 py-1 rounded-lg bg-slate-700/70 hover:bg-slate-700" onClick={()=> setSearchResults([])}>Clear</button>
+                  </div>
+                  <div className="max-h-[40vh] overflow-auto divide-y divide-slate-700/40">
+                    {searchResults.map(r => (
+                      <div key={r.path} className="px-4 py-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <button className="text-indigo-300 hover:underline" onClick={()=> preview(r.path)}>{r.path}</button>
+                          <button className="text-[11px] px-2 py-0.5 rounded bg-slate-700/70 hover:bg-slate-700" onClick={()=> toggleSelect(r.path)}>
+                            {selected.has(r.path)? "Unselect" : "Select"}
+                          </button>
+                        </div>
+                        <ul className="mt-1 text-slate-400 text-[12px] grid gap-1">
+                          {r.matches.slice(0,5).map((m, i)=> (
+                            <li key={i}>line {m.line}: <code className="bg-slate-800/70 px-1 rounded">…{m.snippet}…</code></li>
+                          ))}
+                          {r.matches.length > 5 && <li className="opacity-70">and {r.matches.length - 5} more…</li>}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          </main>
+
+          {ftpOpen && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={()=> setFtpOpen(false)}>
+              <div className="w-full max-w-3xl rounded-2xl border border-slate-700/60 bg-slate-900" onClick={e=>e.stopPropagation()}>
+                <div className="px-4 py-3 border-b border-slate-700/50 flex items-center">
+                  <h2 className="text-lg font-semibold">FTP / SFTP Upload Helper</h2>
+                  <button className="ml-auto text-slate-400 hover:text-white" onClick={()=> setFtpOpen(false)}>✕</button>
+                </div>
+                <div className="p-4 grid gap-3">
+                  <div className="grid grid-cols-6 gap-3">
+                    <div className="col-span-2">
+                      <label className="text-xs text-slate-400">Protocol</label>
+                      <select value={ftpCfg.scheme} onChange={e=> setFtpCfg({...ftpCfg, scheme: e.target.value})} className="w-full px-3 py-2 rounded-xl bg-slate-800/80">
+                        <option value="sftp">SFTP (recommended)</option>
+                        <option value="ftp">FTP (insecure)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Host</label>
+                      <input value={ftpCfg.host} onChange={e=> setFtpCfg({...ftpCfg, host: e.target.value})} className="w-full px-3 py-2 rounded-xl bg-slate-800/80" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Port</label>
+                      <input type="number" value={ftpCfg.port} onChange={e=> setFtpCfg({...ftpCfg, port: Number(e.target.value)})} className="w-full px-3 py-2 rounded-xl bg-slate-800/80" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">User</label>
+                      <input value={ftpCfg.user} onChange={e=> setFtpCfg({...ftpCfg, user: e.target.value})} className="w-full px-3 py-2 rounded-xl bg-slate-800/80" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400">Password (optional)</label>
+                      <input type="password" value={ftpCfg.pass} onChange={e=> setFtpCfg({...ftpCfg, pass: e.target.value})} className="w-full px-3 py-2 rounded-xl bg-slate-800/80" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-6 gap-3">
+                    <div className="col-span-3">
+                      <label className="text-xs text-slate-400">Remote directory</label>
+                      <input value={ftpCfg.remoteDir} onChange={e=> setFtpCfg({...ftpCfg, remoteDir: e.target.value})} className="w-full px-3 py-2 rounded-xl bg-slate-800/80" />
+                    </div>
+                    <div className="col-span-3 flex items-end">
+                      <span className="text-xs text-slate-400">Selected files: {selected.size}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400">Generated command(s)</label>
+                    <textarea readOnly value={ftpCommand} className="w-full h-40 px-3 py-2 rounded-xl bg-slate-800/80 font-mono text-xs"></textarea>
+                    <div className="mt-2 flex gap-2">
+                      <button className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600" onClick={()=> copy(ftpCommand)}>Copy</button>
+                      <a className="px-3 py-2 rounded-xl bg-slate-700 hover:bg-slate-600" href="https://curl.se/docs/manpage.html" target="_blank" rel="noreferrer">curl manual ↗</a>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-2">Tip: open a terminal in the chosen folder and paste these commands. For SFTP you'll be prompted for a password if not provided.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <footer className="p-4 text-center text-xs text-slate-400/80">
+            Works best on Chrome/Edge over HTTPS or localhost (File System Access API). Double‑click a file to toggle selection.
+          </footer>
         </div>
+      );
+    }
 
-        <div class="price">
-          <div class="num">$20.00</div>
-          <div class="per">/ month</div>
-        </div>
-        <div class="small-note">$16.67 when billed annually</div>
-
-        <a class="cta" href="#">Get Pro</a>
-
-        <div class="features">
-          <div class="li">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)" />
-            </svg>
-            <div>10× as many citations in answers</div>
-          </div>
-          <div class="li">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Access to Perplexity Labs</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Unlimited file and photo uploads</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Extended access to Perplexity Research</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Extended access to image generation</div>
-          </div>
-          <div class="li muted"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div>Limited access to video generation</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>One subscription for the latest AI models including GPT-5 and Claude Sonnet 4</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Exclusive access to Pro Perks and more</div>
-          </div>
-        </div>
-
-        <div class="foot">
-          <div>Existing subscriber? <a href="#">See billing help</a></div>
-        </div>
-      </article>
-
-      <!-- Max -->
-      <article class="card">
-        <div class="plan-top">
-          <div class="plan-name">Max</div>
-        </div>
-
-        <div class="price">
-          <div class="num">$200.00</div>
-          <div class="per">/ month</div>
-        </div>
-        <div class="small-note">&nbsp;</div>
-
-        <a class="cta alt" href="#">Get Max</a>
-
-        <div class="features">
-          <div class="li">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Everything in Pro</div>
-          </div>
-          <div class="li">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Early access to Comet, the agentic browser</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Unlimited access to Perplexity Labs</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Unlimited access to Perplexity Research</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Use advanced AI models like OpenAI o3-pro and Anthropic Claude Opus 4.1</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Enhanced access to video generation</div>
-          </div>
-          <div class="li"><svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--success)"/>
-            </svg>
-            <div>Priority support</div>
-          </div>
-        </div>
-
-        <div class="foot">
-          <div>For personal use only, and subject to our <a href="#">policies</a>.</div>
-        </div>
-      </article>
-    </section>
-  </div>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
