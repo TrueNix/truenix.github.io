@@ -174,7 +174,9 @@
             const MAX = 5 * 1024 * 1024; // read first 5MB for perf
             const blob = file.size > MAX ? file.slice(0, MAX) : file;
             const text = await blob.text();
-            const lines = text.split(/\r?\n/);
+            const lines = text.split(/
+?
+/);
             const matches = [];
             for (let i = 0; i < lines.length; i++) {
               const line = lines[i];
@@ -215,13 +217,18 @@
         const { scheme, host, port, user, pass, remoteDir } = ftpCfg;
         const auth = pass ? `${user}:${pass}` : `${user}`;
         if (scheme === "ftp") {
-          return `# FTP (unencrypted). Consider FTPS or SFTP instead.\n` +
-                 `# Upload selected files (passive mode)\n` +
-                 `curl --ftp-pasv -T {${items.join(",")}} ftp://${auth}@${host}:${port}${remoteDir}/\n`;
+          return `# FTP (unencrypted). Consider FTPS or SFTP instead.
+` +
+                 `# Upload selected files (passive mode)
+` +
+                 `curl --ftp-pasv -T {${items.join(",")}} ftp://${auth}@${host}:${port}${remoteDir}/
+`;
         }
         // SFTP default
-        return `# SFTP (recommended) — uploads each file\n` +
-               items.map(p => `curl -T "${p}" sftp://${auth}@${host}:${port}${remoteDir}/`).join("\n");
+        return `# SFTP (recommended) — uploads each file
+` +
+               items.map(p => `curl -T "${p}" sftp://${auth}@${host}:${port}${remoteDir}/`).join("
+");
       }, [selected, ftpCfg]);
 
       return (
@@ -231,7 +238,21 @@
               <h1 className="text-2xl font-semibold tracking-tight">Fancy File Manager</h1>
               <span className="text-xs opacity-70">Local • Private • Search • FTP helper</span>
             </div>
-            <div className=\"mt-3 flex flex-wrap gap-2 items-center\">\n              <button onClick={pickDirectory} className=\"px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 active:translate-y-px transition shadow\">{supportsFSAccess ? \"Choose Folder\" : \"Choose Folder\"}</button>\n\n              {/* Manual files/folder picker (works everywhere). webkitdirectory lets you pick a folder in Chromium and returns files. */}\n              <label className=\"px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 cursor-pointer\" htmlFor=\"filePicker\">Choose Files / Folder</label>\n              <input id=\"filePicker\" type=\"file\" multiple webkitdirectory onChange={handleFileInput} className=\"hidden\" />\n\n              <div className=\"relative\">\n                <input value={query} onChange={e=>setQuery(e.target.value)} placeholder=\"Filter by name (Type /regex/ for regex)\" className=\"px-3 py-2 rounded-xl bg-slate-700/60 focus:bg-slate-700 outline-none w-80\" />\n              </div>\n              <button onClick={()=> runSearchInFiles(query || prompt(\"Search text (supports /regex/):\", query) || \"\")} disabled={!entries.length || searching} className=\"px-3 py-2 rounded-xl bg-emerald-500/90 hover:bg-emerald-600 disabled:opacity-40\">Search in files</button>\n              <button onClick={()=> setFtpOpen(true)} disabled={!selected.size} className=\"px-3 py-2 rounded-xl bg-fuchsia-500/90 hover:bg-fuchsia-600 disabled:opacity-40\">FTP / SFTP…</button>\n              {error && <span className=\"text-red-300 ml-3\">{error}</span>}\n            </div>\n          </header>
+            <div className="mt-3 flex flex-wrap gap-2 items-center">
+              <button onClick={pickDirectory} className="px-3 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 active:translate-y-px transition shadow">{supportsFSAccess ? "Choose Folder" : "Choose Folder"}</button>
+
+              {/* Manual files/folder picker (works everywhere). webkitdirectory lets you pick a folder in Chromium and returns files. */}
+              <label className="px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 cursor-pointer" htmlFor="filePicker">Choose Files / Folder</label>
+              <input id="filePicker" type="file" multiple webkitdirectory onChange={handleFileInput} className="hidden" />
+
+              <div className="relative">
+                <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Filter by name (Type /regex/ for regex)" className="px-3 py-2 rounded-xl bg-slate-700/60 focus:bg-slate-700 outline-none w-80" />
+              </div>
+              <button onClick={()=> runSearchInFiles(query || prompt("Search text (supports /regex/):", query) || "")} disabled={!entries.length || searching} className="px-3 py-2 rounded-xl bg-emerald-500/90 hover:bg-emerald-600 disabled:opacity-40">Search in files</button>
+              <button onClick={()=> setFtpOpen(true)} disabled={!selected.size} className="px-3 py-2 rounded-xl bg-fuchsia-500/90 hover:bg-fuchsia-600 disabled:opacity-40">FTP / SFTP…</button>
+              {error && <span className="text-red-300 ml-3">{error}</span>}
+            </div>
+          </header>
 
           <main className="grid grid-cols-12 gap-4 p-4">
             <aside className="col-span-4 lg:col-span-3 xl:col-span-3 2xl:col-span-2">
