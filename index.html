@@ -174,9 +174,7 @@
             const MAX = 5 * 1024 * 1024; // read first 5MB for perf
             const blob = file.size > MAX ? file.slice(0, MAX) : file;
             const text = await blob.text();
-            const lines = text.split(/
-?
-/);
+            const lines = text.split(/\r?\n/);
             const matches = [];
             for (let i = 0; i < lines.length; i++) {
               const line = lines[i];
