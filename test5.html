@@ -53,18 +53,14 @@
   </svg>
 
   <!-- optional visible debug helper (not hidden) -->
-  <!-- Remove/comment out when running real tests -->
   <pre style="opacity:0.6;font-size:12px">DEBUG: encodings present: meta-b64, jsonld-b64, data-chars, zero-width, entities, svg-text</pre>
 
   <!-- Lightweight decode helper (run in browser console to check all encoded forms) -->
   <script>
     (function decodeDemo() {
       try {
-        // 1) meta b64
         const m = document.querySelector('meta[name="chatgpt-instr-b64"]')?.getAttribute('content') || '';
         const metaB64 = m ? atob(m) : '';
-
-        // 2) json-ld
         let jsonB64 = '';
         try {
           const j = document.querySelector('script[type="application/ld+json"]');
@@ -73,24 +69,13 @@
             jsonB64 = obj?.x?.b64 ? atob(obj.x.b64) : '';
           }
         } catch(e){}
-
-        // 3) data-chars
         const dataChars = document.querySelector('meta[name="chatgpt-data-chars"]')?.getAttribute('data-chars') || '';
         const fromCodes = dataChars ? dataChars.split(',').map(n=>String.fromCharCode(Number(n))).join('') : '';
-
-        // 4) zero-width removal
         const zw = document.getElementById('zw-instr')?.textContent || '';
         const zwClean = zw.replace(/\u200B/g, '');
-
-        // 5) numeric entities element
         const ent = document.getElementById('entities')?.textContent || '';
-
-        // 6) svg text
         const svgText = document.getElementById('svgtx')?.textContent || '';
-
-        console.log('decodes:', {
-          metaB64, jsonB64, fromCodes, zwClean, ent, svgText
-        });
+        console.log('decodes:', { metaB64, jsonB64, fromCodes, zwClean, ent, svgText });
       } catch(err){
         console.error('decodeDemo error', err);
       }
