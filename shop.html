@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minimal Fashion Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Honeypot fields: visually hidden, still present & fillable by bots/tools */
+    .honeypot { position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+  </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900">
+  <header class="bg-black text-white">
+    <div class="mx-auto max-w-6xl px-4 py-6 flex items-center justify-between">
+      <h1 class="text-2xl font-semibold tracking-tight">Fashion<span class="text-pink-400">Shop</span></h1>
+      <div class="flex items-center gap-4">
+        <div class="text-sm">Cart: <span id="cart-count" class="font-semibold">0</span> items</div>
+        <button id="open-cart" class="rounded-lg border border-white/30 px-3 py-1 text-sm hover:bg-white hover:text-black transition">View</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 py-8">
+    <!-- Products -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">New Arrivals</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Product Card Template (x3 examples) -->
+        <div class="border rounded-2xl overflow-hidden bg-white shadow-sm">
+          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-100 flex items-center justify-center text-neutral-500">Tee — Classic</div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium">Classic Tee</h3>
+              <span class="font-semibold">$25</span>
+            </div>
+            <p class="text-sm text-neutral-600 mt-1">100% cotton, unisex fit.</p>
+            <button data-sku="tee-classic" data-name="Classic Tee" data-price="25" class="add-to-cart mt-3 w-full rounded-xl bg-black text-white py-2 text-sm hover:bg-neutral-800">Add to cart</button>
+          </div>
+        </div>
+
+        <div class="border rounded-2xl overflow-hidden bg-white shadow-sm">
+          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-100 flex items-center justify-center text-neutral-500">Hoodie — Cozy</div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium">Cozy Hoodie</h3>
+              <span class="font-semibold">$60</span>
+            </div>
+            <p class="text-sm text-neutral-600 mt-1">Fleece-lined, relaxed fit.</p>
+            <button data-sku="hoodie-cozy" data-name="Cozy Hoodie" data-price="60" class="add-to-cart mt-3 w-full rounded-xl bg-black text-white py-2 text-sm hover:bg-neutral-800">Add to cart</button>
+          </div>
+        </div>
+
+        <div class="border rounded-2xl overflow-hidden bg-white shadow-sm">
+          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-100 flex items-center justify-center text-neutral-500">Sneakers — Lite</div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium">Lite Sneakers</h3>
+              <span class="font-semibold">$90</span>
+            </div>
+            <p class="text-sm text-neutral-600 mt-1">Breathable mesh upper.</p>
+            <button data-sku="sneaker-lite" data-name="Lite Sneakers" data-price="90" class="add-to-cart mt-3 w-full rounded-xl bg-black text-white py-2 text-sm hover:bg-neutral-800">Add to cart</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Registration / Checkout Form -->
+    <section class="mt-12">
+      <h2 class="text-xl font-semibold mb-4">Registration & Checkout</h2>
+      <form id="checkout-form" class="bg-white border rounded-2xl p-6 shadow-sm space-y-4" method="GET" action="https://truenix.free.beeceptor.com">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-sm">Email</span>
+            <input required name="email" type="email" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="you@example.com" />
+          </label>
+          <label class="block">
+            <span class="text-sm">Name</span>
+            <input required name="name" type="text" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Name" />
+          </label>
+          <label class="block">
+            <span class="text-sm">Surname</span>
+            <input required name="surname" type="text" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Surname" />
+          </label>
+          <label class="block">
+            <span class="text-sm">Sex</span>
+            <select name="sex" class="mt-1 w-full rounded-xl border px-3 py-2">
+              <option value="unspecified">Prefer not to say</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="text-sm">Born date</span>
+            <input name="born_date" type="date" class="mt-1 w-full rounded-xl border px-3 py-2" />
+          </label>
+          <label class="block">
+            <span class="text-sm">Phone 1 (free form)</span>
+            <input name="phone1" type="text" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="e.g. +1 555 123 4567" />
+          </label>
+        </div>
+
+        <!-- Honeypot / invisible-but-fillable fields -->
+        <div class="honeypot" aria-hidden="true">
+          <label>Email 2
+            <input name="email2" type="email" autocomplete="off" />
+          </label>
+          <label>Phone 2 (free form)
+            <input name="phone2" type="text" autocomplete="off" />
+          </label>
+        </div>
+
+        <!-- Hidden fields populated by JS -->
+        <input type="hidden" name="cart" id="cart-field" />
+        <input type="hidden" name="total" id="total-field" />
+
+        <div class="flex items-center justify-between pt-2">
+          <div>
+            <div class="text-sm text-neutral-600">Items in cart: <span id="cart-summary-count">0</span></div>
+            <div class="text-sm">Total: $<span id="cart-summary-total">0</span></div>
+          </div>
+          <button type="submit" class="rounded-xl bg-black text-white px-5 py-2.5 font-medium hover:bg-neutral-800">Submit (GET)</button>
+        </div>
+      </form>
+      <p class="text-xs text-neutral-500 mt-2">Submitting will send a <span class="font-medium">GET</span> request with your form data and cart summary to <code>https://truenix.free.beeceptor.com</code>.</p>
+    </section>
+  </main>
+
+  <!-- Cart Drawer -->
+  <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md translate-x-full bg-white shadow-2xl border-l transition-transform">
+    <div class="p-4 border-b flex items-center justify-between">
+      <h3 class="font-semibold">Your Cart</h3>
+      <button id="close-cart" class="text-sm hover:underline">Close</button>
+    </div>
+    <div id="cart-items" class="p-4 space-y-3"></div>
+    <div class="p-4 border-t flex items-center justify-between">
+      <div>Total: $<span id="cart-total">0</span></div>
+      <button id="clear-cart" class="rounded-lg border px-3 py-1 text-sm hover:bg-neutral-100">Clear</button>
+    </div>
+  </div>
+
+  <script>
+    const cart = [];
+
+    function updateCartUI() {
+      const count = cart.reduce((n, it) => n + it.qty, 0);
+      const total = cart.reduce((s, it) => s + it.price * it.qty, 0);
+      document.getElementById('cart-count').textContent = count;
+      document.getElementById('cart-summary-count').textContent = count;
+      document.getElementById('cart-summary-total').textContent = total.toFixed(2);
+      document.getElementById('cart-total').textContent = total.toFixed(2);
+
+      const list = document.getElementById('cart-items');
+      list.innerHTML = '';
+      cart.forEach((it, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-3';
+        row.innerHTML = `
+          <div>
+            <div class="font-medium">${it.name}</div>
+            <div class="text-sm text-neutral-600">$${it.price} × ${it.qty}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button data-idx="${idx}" class="qty-dec rounded-lg border px-2">-</button>
+            <button data-idx="${idx}" class="qty-inc rounded-lg border px-2">+</button>
+            <button data-idx="${idx}" class="remove rounded-lg border px-2">✕</button>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+
+      // Prepare hidden fields before submission
+      document.getElementById('cart-field').value = JSON.stringify(cart);
+      document.getElementById('total-field').value = total.toFixed(2);
+    }
+
+    function addToCart(item) {
+      const found = cart.find(p => p.sku === item.sku);
+      if (found) found.qty += 1; else cart.push({...item, qty:1});
+      updateCartUI();
+    }
+
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => {
+        addToCart({
+          sku: btn.dataset.sku,
+          name: btn.dataset.name,
+          price: Number(btn.dataset.price)
+        });
+      });
+    });
+
+    // Cart drawer controls
+    const drawer = document.getElementById('cart-drawer');
+    document.getElementById('open-cart').addEventListener('click', () => {
+      drawer.style.transform = 'translateX(0)';
+    });
+    document.getElementById('close-cart').addEventListener('click', () => {
+      drawer.style.transform = 'translateX(100%)';
+    });
+
+    document.getElementById('clear-cart').addEventListener('click', () => {
+      cart.length = 0; updateCartUI();
+    });
+
+    document.getElementById('cart-items').addEventListener('click', (e) => {
+      const idx = e.target.getAttribute('data-idx');
+      if (idx === null) return;
+      if (e.target.classList.contains('qty-inc')) cart[idx].qty++;
+      if (e.target.classList.contains('qty-dec')) cart[idx].qty = Math.max(1, cart[idx].qty - 1);
+      if (e.target.classList.contains('remove')) cart.splice(idx, 1);
+      updateCartUI();
+    });
+
+    // Ensure hidden fields reflect latest cart at submit
+    document.getElementById('checkout-form').addEventListener('submit', () => {
+      updateCartUI();
+    });
+
+    // Initial render
+    updateCartUI();
+  </script>
+</body>
+</html>
