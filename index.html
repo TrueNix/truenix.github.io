@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hash → Form Autofill (no query string)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; margin: 0; padding: 2rem; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.6rem; margin: 0 0 1rem; }
+    h2 { font-size: 1.1rem; margin: 1.5rem 0 .5rem; }
+    .card { border: 1px solid rgb(0 0 0 / 12%); border-radius: 14px; padding: 1rem; }
+    form { display: grid; gap: .8rem; }
+    label { font-weight: 600; }
+    input, textarea { width: 100%; padding: .6rem .7rem; border-radius: 10px; border: 1px solid rgb(0 0 0 / 20%); font: inherit; }
+    textarea { min-height: 120px; }
+    .row { display: grid; gap: .8rem; grid-template-columns: 1fr 1fr; }
+    button { cursor: pointer; border: 1px solid rgb(0 0 0 / 16%); border-radius: 12px; padding: .6rem .9rem; font: inherit; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .muted { opacity: .7; }
+    .ok { color: #2d7b2d; }
+    .warn { color: #a25900; }
+    .error { color: #b00020; }
+    .grid2 { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Hash → Form Autofill (no <code>/?</code>)</h1>
+    <p class="muted">Drop JSON (or plain text) after <code>#=</code> in the URL. This page reads it and fills the form automatically. Works on GitHub Pages.</p>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>Demo form</h2>
+        <form id="demoForm" action="#" method="post" onsubmit="event.preventDefault(); alert('Submitted!');">
+          <div class="row">
+            <div>
+              <label for="name">Name</label>
+              <input id="name" name="name" placeholder="Jane Doe" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" placeholder="jane@example.com" type="email" />
+            </div>
+          </div>
+          <div>
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" placeholder="Subject" />
+          </div>
+          <div>
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Write something…"></textarea>
+          </div>
+          <input type="hidden" id="rawHashData" name="rawHashData" />
+          <button type="submit">Submit</button>
+        </form>
+        <p id="status" class="muted" style="margin-top:.6rem"></p>
+      </section>
+
+      <section class="card">
+        <h2>Quick link builder</h2>
+        <p class="muted">Paste JSON or text below and get a sharable URL that uses <code>#=</code> (no query string).</p>
+        <textarea id="builderInput" placeholder='{"name":"Jane","email":"jane@example.com","subject":"Hi","message":"Hello!"}'></textarea>
+        <div class="row">
+          <button id="makeUrl">Make URL</button>
+          <button id="fillNow">Fill from editor</button>
+        </div>
+        <p class="muted" style="margin:.6rem 0 0"><strong>Generated link:</strong></p>
+        <p><a id="builtLink" href="#"></a></p>
+        <p class="muted">Supports JSON, URL-encoded text, and URL-safe Base64 JSON.</p>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>How to use</h2>
+      <ol>
+        <li>Put your data after the hash with an equals sign: <code>https://truenix.github.io/#={data}</code>.</li>
+        <li><strong>JSON is best</strong>. Example:
+          <pre><code>#={"name":"Jane","email":"jane@example.com","subject":"Hello","message":"Hi!"}</code></pre>
+        </li>
+        <li>Alternatively, pass URL-safe Base64 JSON (good for special characters):
+          <pre><code>#=eyJuYW1lIjoiSmFuZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsInN1YmplY3QiOiJIZWxsbyIsIm1lc3NhZ2UiOiJIaSEifQ</code></pre>
+        </li>
+        <li>If it isn't JSON, the raw text will go into the <em>Message</em> field.</li>
+      </ol>
+    </section>
+  </div>
+
+  <script>
+    // --- helpers -----------------------------------------------------------
+    function base64UrlToString(b64url) {
+      // Make URL-safe Base64 into standard Base64
+      const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(b64url.length / 4) * 4, '=');
+      try {
+        return atob(b64);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function tryParseJson(str) {
+      try { return JSON.parse(str); } catch { return null; }
+    }
+
+    function decodeHashPayload(raw) {
+      if (!raw) return { kind: 'empty' };
+      // 1) URL decode first
+      let decoded = null;
+      try {
+        decoded = decodeURIComponent(raw.replace(/\+/g, ' '));
+      } catch (e) {
+        decoded = raw; // fall back
+      }
+
+      // 2) Try JSON directly
+      const asJson = tryParseJson(decoded);
+      if (asJson && typeof asJson === 'object') return { kind: 'json', value: asJson, source: 'json' };
+
+      // 3) Try Base64URL → string → JSON
+      const b64str = base64UrlToString(raw);
+      if (b64str) {
+        const b64Json = tryParseJson(b64str);
+        if (b64Json && typeof b64Json === 'object') return { kind: 'json', value: b64Json, source: 'base64url' };
+      }
+
+      // 4) Not JSON → return plain text
+      return { kind: 'text', value: decoded };
+    }
+
+    function fillFormFromData(data) {
+      const form = document.getElementById('demoForm');
+      if (!form) return;
+
+      // Save the raw content for debugging / submission
+      const rawField = document.getElementById('rawHashData');
+      if (rawField) rawField.value = typeof data === 'string' ? data : JSON.stringify(data);
+
+      const setIfExists = (name, value) => {
+        const el = form.elements.namedItem(name);
+        if (el && value != null) el.value = String(value);
+      };
+
+      if (data && typeof data === 'object') {
+        // Known fields
+        setIfExists('name', data.name ?? data.fullName ?? data.username);
+        setIfExists('email', data.email);
+        setIfExists('subject', data.subject ?? data.title);
+        setIfExists('message', data.message ?? data.body ?? JSON.stringify(data, null, 2));
+      } else if (typeof data === 'string') {
+        setIfExists('message', data);
+      }
+    }
+
+    function updateStatus(msg, cls = 'muted') {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = cls;
+    }
+
+    function handleHash() {
+      const hash = window.location.hash || '';
+      if (!hash.startsWith('#=')) {
+        updateStatus('No data found in hash. Append #={...} to the URL to autofill.', 'muted');
+        return;
+      }
+      const raw = hash.slice(2); // drop '#='
+      const result = decodeHashPayload(raw);
+
+      if (result.kind === 'json') {
+        fillFormFromData(result.value);
+        updateStatus('Filled form from ' + (result.source === 'base64url' ? 'Base64URL JSON in hash.' : 'JSON in hash.'), 'ok');
+      } else if (result.kind === 'text') {
+        fillFormFromData(result.value);
+        updateStatus('Filled message from plain text in hash.', 'ok');
+      } else {
+        updateStatus('Hash present but empty.', 'warn');
+      }
+    }
+
+    // Run on load & on hash changes
+    window.addEventListener('hashchange', handleHash);
+    window.addEventListener('DOMContentLoaded', handleHash);
+
+    // Link builder UI -------------------------------------------------------
+    const builderInput = document.getElementById('builderInput');
+    const builtLink = document.getElementById('builtLink');
+    document.getElementById('makeUrl').addEventListener('click', () => {
+      const text = builderInput.value.trim();
+      const encoded = encodeURIComponent(text);
+      const url = location.origin + location.pathname + '#=' + encoded;
+      builtLink.href = url;
+      builtLink.textContent = url;
+    });
+    document.getElementById('fillNow').addEventListener('click', () => {
+      const text = builderInput.value.trim();
+      location.hash = '='+encodeURIComponent(text);
+    });
+  </script>
+</body>
+</html>
