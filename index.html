@@ -3,220 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrueNix | System Override</title>
+    <title>TrueNix | Secure Gateway</title>
     <style>
-        /* Import a hacker-style font */
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            overflow: hidden; /* Prevent scrollbars */
-            font-family: 'VT323', monospace;
-        }
-
-        /* The Canvas acts as the background layer */
-        canvas {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        /* The Container for your text */
-        #console-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2;
-            text-align: center;
-            width: 90%;
-            pointer-events: none; /* Let clicks pass through to canvas if needed */
-        }
-
-        /* Main Quote Styling */
-        .glitch-text {
-            color: #0f0;
-            font-size: 4rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            position: relative;
-            text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
-            margin: 0;
-            line-height: 1.1;
-        }
-
-        /* The "TrueNix" Signature Styling */
-        .signature {
-            color: #fff;
-            font-size: 2rem;
-            margin-top: 20px;
-            text-shadow: 0 0 5px #fff;
-            opacity: 0; /* Hidden initially, revealed by JS */
-            animation: fadeIn 2s forwards;
-            animation-delay: 1.5s;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 2rem;
-            background-color: #0f0;
-            animation: blink 1s infinite;
-            vertical-align: bottom;
-        }
-
-        /* Glitch Animation Effects */
-        .glitch-text::before,
-        .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-
-        .glitch-text::before {
-            left: 2px;
-            text-shadow: -1px 0 #ff00c1;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim-1 5s infinite linear alternate-reverse;
-        }
-
-        .glitch-text::after {
-            left: -2px;
-            text-shadow: -1px 0 #00fff9;
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim-2 5s infinite linear alternate-reverse;
-        }
-
-        /* Animations */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        @keyframes glitch-anim-1 {
-            0% { clip: rect(20px, 9999px, 10px, 0); }
-            20% { clip: rect(60px, 9999px, 70px, 0); }
-            40% { clip: rect(20px, 9999px, 50px, 0); }
-            60% { clip: rect(10px, 9999px, 80px, 0); }
-            80% { clip: rect(50px, 9999px, 20px, 0); }
-            100% { clip: rect(70px, 9999px, 30px, 0); }
-        }
-
-        @keyframes glitch-anim-2 {
-            0% { clip: rect(80px, 9999px, 20px, 0); }
-            20% { clip: rect(10px, 9999px, 80px, 0); }
-            40% { clip: rect(50px, 9999px, 20px, 0); }
-            60% { clip: rect(20px, 9999px, 50px, 0); }
-            80% { clip: rect(70px, 9999px, 10px, 0); }
-            100% { clip: rect(30px, 9999px, 60px, 0); }
-        }
-
-        /* Mobile adjustment */
-        @media (max-width: 768px) {
-            .glitch-text { font-size: 2rem; }
-            .signature { font-size: 1.2rem; }
-        }
+        body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: 'VT323', monospace; }
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 1; }
+        #console-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; text-align: center; width: 90%; max-width: 800px; pointer-events: auto; }
+        .glitch-text { color: #0f0; font-size: 4rem; font-weight: bold; text-transform: uppercase; text-shadow: 0 0 10px #0f0; margin: 0; line-height: 1.1; pointer-events: none; user-select: none; }
+        .signature { color: #fff; font-size: 2rem; margin-top: 20px; opacity: 0; animation: fadeIn 2s forwards 1.5s; pointer-events: none; }
+        .cursor { display: inline-block; width: 10px; height: 2rem; background-color: #0f0; animation: blink 1s infinite; vertical-align: bottom; }
+        #challenge-section { margin-top: 40px; opacity: 0; transition: opacity 1s; display: none; }
+        .pill-btn { background: transparent; border: 2px solid; font-family: 'VT323', monospace; font-size: 1.5rem; padding: 10px 30px; margin: 0 15px; cursor: pointer; text-transform: uppercase; transition: all 0.3s; }
+        .btn-red { color: #ff3333; border-color: #ff3333; text-shadow: 0 0 5px #ff3333; }
+        .btn-red:hover { background: rgba(255, 51, 51, 0.2); box-shadow: 0 0 15px #ff3333; }
+        .btn-blue { color: #33aaff; border-color: #33aaff; text-shadow: 0 0 5px #33aaff; }
+        .btn-blue:hover { background: rgba(51, 170, 255, 0.2); box-shadow: 0 0 15px #33aaff; }
+        #crypto-input-container { display: none; margin-top: 20px; }
+        #key-input { background: transparent; border: none; border-bottom: 2px solid #0f0; color: #0f0; font-family: 'VT323', monospace; font-size: 1.5rem; width: 300px; text-align: center; outline: none; }
+        #message-area { margin-top: 20px; font-size: 1.2rem; color: #fff; min-height: 1.5rem; white-space: pre-wrap; }
+        #viewport { margin-top: 30px; display: none; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
+        .shake { animation: shake 0.5s; }
+        @media (max-width: 768px) { .glitch-text { font-size: 2rem; } .pill-btn { display: block; margin: 10px auto; width: 80%; } }
     </style>
 </head>
 <body>
-
     <canvas id="matrixCanvas"></canvas>
-
     <div id="console-container">
         <div class="glitch-text" data-text="MESS WITH THE BEST">MESS WITH THE BEST</div>
         <div class="glitch-text" data-text="DIE LIKE THE REST">DIE LIKE THE REST</div>
-        <div class="signature">
-            > USER: <span id="typewriter"></span><span class="cursor"></span>
+        <div class="signature">> USER: <span id="typewriter"></span><span class="cursor"></span></div>
+        <div id="challenge-section">
+            <p style="color:#fff; font-size:1.5rem;">> SYSTEM HALTED. CHOOSE YOUR PATH:</p>
+            <div id="pill-buttons">
+                <button class="pill-btn btn-blue" onclick="takeBluePill()">BLUE PILL</button>
+                <button class="pill-btn btn-red" onclick="showRedPillInput()">RED PILL</button>
+            </div>
+            <div id="crypto-input-container">
+                <p style="color:#ff3333;">> ENTER AES KEY (PASSPHRASE):</p>
+                <input type="password" id="key-input" placeholder="ENCRYPTED" autocomplete="off">
+                <div id="message-area"></div>
+            </div>
+            <div id="viewport"></div>
         </div>
     </div>
-
     <script>
-        // --- MATRIX RAIN ANIMATION ---
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Make canvas full screen
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const nums = '0123456789';
-        const alphabet = katakana + latin + nums;
-
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-
-        const rainDrops = [];
-
-        // Initialize drop positions
-        for( let x = 0; x < columns; x++ ) {
-            rainDrops[x] = 1;
-        }
-
-        const draw = () => {
-            // Translucent black background to create the fade effect
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#0F0'; // Green text
-            ctx.font = fontSize + 'px monospace';
-
-            for(let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-                // Randomly reset drop to top after it has fallen
-                if(rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975){
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
+        // Default API fallback - DO NOT REMOVE
+        const config = {
+            timeout: 5000,
+            retry: 3,
+            legacy_token: "VGhlTWF0cml4SGFzWW91"
         };
 
-        // Run the animation
-        setInterval(draw, 30);
+        const _nodes = [
+            {
 
-        // Resize handler
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            // Recalculate columns on resize
-            const newCols = canvas.width / fontSize;
-            rainDrops.length = 0; // clear array
-            for(let x = 0; x < newCols; x++) {
-                rainDrops[x] = 1;
+                iv: "3c9c4e3406cee611e661afec",
+                cipher: "242a2c548c6211171160325d97a882f9130239c519b21396f48462d8a1c512be99364e7ba476b37c1fe89f29be64ef46a1025ea255d3d2afe8179933da27d59150666def67178dcdfd8ab74e1ba175882d7bd6079b3a69e2d174a5f6ec6a1e92e55807476aec06589dd9ed030714802cebc922176c0d49fc6f011c8f9887850528bba5ac43fe3e37efcf2435dc454273b996d9194f32df0d9d7f945b39c8c8e9defad14c049c6e827b1e65ed4b583956c12cd3ae99b4cca95639c92d7c961ead9d79f5c9ff45ad2030234256478f0c1bba8ca7308b054453b65b6340e5f73a92e1c42d467cb7d8ff397c138ed4eaf24a6e8b62f7423e87ef098be330a56eaecebed7e1498d091975279f383c51ae80ad4209e10fa25a07132344ccc8473dbe5a2fff1268102c2c447ae52233f635c85aea1882a0c01254370ca8ba38ebc1acc9aaacdab515bc50f0bae51bbe68c53c29f13a742717e9c8e4af4b618567e8fc5e8d64ad095daa3aacc1c4f8e6c7d2f90b07313dea3a73472c001bf96d050db3c96788f5489a7aabb6b54a5e6910c97cca541b1a1813955b8f502b0cedcfc30c8180c330b6a55046d63435d963dd6609ed08d72057da78ac634fe094dcbb0dbdce296afe093cc8dd908d989998c8ea6e0c3937a837b26f7159b26dfd6a3ae1c3eff98f8abd8d3f5ab7118f42fac26d3c6c37ac0cfa363f89659d62a6e257cbc462b6c3b29604cdfffcdad971272049c033a482f826c57dcfb95685d8e3dc5d3e150db4b5f94a29f6d5e41a02a0ef59b6ca84492c4102f5fcc81edf051d26c104a9cb2408041af9ab338e74565a9e402daf5734e5cf2d87198f38146989fa74496a58d0dee45188c3b7511bc3e257ec2c1cec3ea569d92f82ef78001bc7c92a37c288feb324c6fd805595cad0f75945ebef8055cf26119e34f8b6a0507317da66898f0de4e8dff8c013c17c1f6470042617ea5230a6639cfa43eac131ff1788193fdbba3b098a80af614997c802493c57bbb7cf1cf65730e2a43c77c0ff9b8ae7c965d215ef2ba3eeec5dc3eeb3d9ecf16918ee474640677b8f2a970dc2c89c98450605d44b0cf236691648742b1b578e337b6a8161c7477bbcfa8cab2e3a2fb6ea33a1ea3fbfede91dbdcfba9d581aafa95ca74595fd4d6fe34f8ecb281f5ee8d80ffe26ac475a6226410f2e447fa768c1571c3e9e4d3cba3ae6b777bfac405eea1a355fc491770311b4e3ca5f0b4235ad2188a8f07aa5435530295c551d947547a6382324110fc40d8fc189f4554c6baa1eaf361ccee3ee8a5044cbf5754e74bba783b1e5f20ac4c0b930d07845592d0c66c843a16094bb842a49046020de"
+            },
+            {
+
+                iv: "6e03a8d1da8eb6afaff8d892",
+                cipher: "a9db1c30be7ec78723da2b00406e9e362f89e3218deb1ed5e7c1a64099657603fe71a150c5252c44decac472efbe00cc1497385929df704952923fdb913ebe005c752b142ae414027a14d8cc8df14daa3be35d5c47a266753f3677b29f2cc3f1539fae4a5d21c5a67667bdecc71a9a59d0611dc51f831af7c5a65081faf5babb65e7dfb4d5668a324e70a21287c562ebf122ee8bbe1b366ed6150e89533929492452f7a03f4d1821dd42e03c53ecba77d5dcfd2eaf71159ca7af70843616cc235bdbb87368f89f51c7c79c9908d511aa4b6f6c67235172bbe50c4882adc0f5b66ec9afe1afaad99f027cbb704761e7b495c031232254e36bbd31970db1fcf300d79f63b392f197616faa731f856919daf88c868cab7505511da1f3327406c82d7c2af9f0bb9b8c2ae3f8abc9934cc68b69c42569028bf5952159e31af7a85ec14b786fccb603b2fcc7d53775765cd81ca670699632262ccf285dc37acda50bca1cf133f2033a57eeabe5a40cb00f8f7e4c156eeb2f58b012b240f2b292c6e31323c5b730039c0338d2fd3ab5908d15723f61a51a2e83007747db31a65e77e297f3b48aa781e947eebcd1a83b6976d75f1bc7dd66e4cbad5f288382a0b28469ca77bb4a1a3495fd73e2783065040c7565f21d9c1221b8b3ea2f6751ed75e776123fe71561fd308ea82c782e66c354ca75ea8e296f0875d9c785d3419fdae4f7b6adf4bb3a745fb2a72f3df2366d2152e577291d55b9852854c323bc572488096373a64bee1314026dcdd757099bc7cd9762e83ad2be2dcd5bb97a2152ef7a9c77d01fff80d249248ac6537baacd1b2391bc30e90ab66b73b77775a67270b196e7cab34d99be291d01178f880054912aba91e31eb0d33d6aef1f198d802abb264cdc59822f0d60a57a3783ecb8551061a1cea471e097680061bf265c0f57bf0715397a85f47030bf60053529732eef64ef1bccfdb7c141aa3640999346e031408ea0417d412e2204b2ec5a2bb8a4dbbce3f2c3a7fd436657510600831ec25f2e6e3f066c961ff590d2325c68175e99676ba2a2e1fab0451105e23a59e042fb56bc188f44d9bfd50fc9604f202c6301463d805bf82a4bcfd2fa5f89e8926d02e58868eea7b0c014cc0f22b2ec6602705caa3c5af579bc529a949085335772a56f0b1034916c1b6859bc738a5d583800c4cf63e60525693701c95fde2eb0e9b4392bd3af3ccc457e8234e80d4d809a9af3961acb8658d7481527891c04aceba222e2c4754b5ad214122d107c0b77df75090f71451167b4c16515c7963456eaa7ccff8d2b00a5597df8f0e8b51a1c11e0f46ae64825928671854602742ba530d10f20dba0c019762d4fb1156edd5e6a27b126b8f01a718950a2b4474d13f435697603da264c65f930efec6e9d5336a8a3d7f5d15da5ea89ad145255545473707a57f70658f81ff3293945710eb3a523779ce5df2f1ba89a47c7413cb6d46c5732e650685624f055373a185776d81708a5b4012d42908119da98eed3f53e4aade16dc63eef481eb66ca5aa6ef9a9089ee5797dedc5512f834082ceb92b54ab2a3de656b9d5c59f5da5c1b5398cdfbecbabef9b5a94a132e753a62a5ff97fffcce318925bb6fe26ba57096dbc138aab159bc6a19d0d0beb43906d3ea99b35cc4ab93cb287433dbc86df4a05f60403476986245428a51f520d536cfc67e9c65f8e4645e325bb2bb96f6d4c256f16941ee2a1b62f8ed69e3d0f9edbe8c7701e21ff3e3f51cc60c5ebafee3d2b7b56f86824a3f3b4647e9c8ddd87f4a9fc85a98472bdcc67c4fa09e3f97f2209698a398baea5dde82fa1d5207cc30c4d77cb1d7e915df754bb024a67c316cc63aa115504d8b9286a5d5d37e27d63181957d1a936702ed2236fafd1270deed0daf9d471116a4bfea2196fe0f28b3a23d5c4516abdef8c6e635eea72d23896bf43"
             }
-        });
+        ];
 
-        // --- TYPEWRITER EFFECT FOR TRUENIX ---
-        const textToType = "TrueNix";
-        const typeWriterElement = document.getElementById('typewriter');
-        let i = 0;
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const _k = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプ0123456789';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        setInterval(() => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0'; ctx.font = fontSize + 'px monospace';
+            drops.forEach((y, i) => {
+                const text = _k.charAt(Math.floor(Math.random() * _k.length));
+                ctx.fillText(text, i * fontSize, y * fontSize);
+                if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
+        }, 33);
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 
+        const typeText = "TrueNix";
+        let typeIdx = 0;
         function typeWriter() {
-            if (i < textToType.length) {
-                typeWriterElement.innerHTML += textToType.charAt(i);
-                i++;
-                setTimeout(typeWriter, 150); // Typing speed
+            if (typeIdx < typeText.length) {
+                document.getElementById('typewriter').innerHTML += typeText.charAt(typeIdx++);
+                setTimeout(typeWriter, 150);
+            } else {
+                setTimeout(() => {
+                    const ch = document.getElementById('challenge-section');
+                    ch.style.display = 'block';
+                    setTimeout(() => ch.style.opacity = '1', 50);
+                }, 1000);
             }
         }
-
-        // Start typing after a short delay
         setTimeout(typeWriter, 2000);
 
+        function takeBluePill() {
+            document.body.innerHTML = '<div style="color:white;text-align:center;margin-top:20%"><h1>DISCONNECTING...</h1></div>';
+            setTimeout(() => window.location.href = "https://disneyland.disney.go.com/destinations/disneyland/", 1000);
+        }
+
+        function showRedPillInput() {
+            document.getElementById('pill-buttons').style.display = 'none';
+            document.getElementById('crypto-input-container').style.display = 'block';
+            document.getElementById('key-input').focus();
+        }
+
+        const inputField = document.getElementById('key-input');
+        const messageArea = document.getElementById('message-area');
+        const viewport = document.getElementById('viewport');
+        const hexToBuf = (hex) => new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+        inputField.addEventListener('keypress', async function (e) {
+            if (e.key === 'Enter') {
+                const password = inputField.value;
+                messageArea.style.color = "#fff";
+                messageArea.innerText = "> VERIFYING...";
+                try {
+                    const enc = new TextEncoder();
+                    const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+                    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: enc.encode("TRUENIX_SALT_V2"), iterations: 100000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
+                    let decryptedHTML = null;
+
+
+                    for (const node of _nodes) {
+                        try {
+                            const decryptedBuf = await crypto.subtle.decrypt({ name: "AES-GCM", iv: hexToBuf(node.iv) }, key, hexToBuf(node.cipher));
+                            decryptedHTML = new TextDecoder().decode(decryptedBuf);
+                            break;
+                        } catch (e) { continue; }
+                    }
+                    if (decryptedHTML) {
+                        messageArea.style.color = "#0f0";
+                        messageArea.innerText = "> ACCESS GRANTED.";
+                        inputField.disabled = true;
+                        document.getElementById('crypto-input-container').style.display = 'none';
+                        viewport.innerHTML = decryptedHTML;
+                        viewport.style.display = 'block';
+                        const scripts = viewport.getElementsByTagName("script");
+                        for (let s of scripts) { eval(s.innerText); }
+                    } else { throw new Error("Invalid"); }
+                } catch (err) {
+                    messageArea.style.color = "red";
+                    messageArea.innerText = "> ACCESS DENIED.";
+                    inputField.classList.add('shake');
+                    setTimeout(() => inputField.classList.remove('shake'), 500);
+                    inputField.value = "";
+                }
+            }
+        });
     </script>
 </body>
 </html>
